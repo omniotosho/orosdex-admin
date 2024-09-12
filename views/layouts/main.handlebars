@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Tridex</title>
+        <link rel="shortcut icon" href="favicon.png" type="image/png">
+
+        <!-- Vendors -->
+        <link href="resources/vendors/animate.css/animate.min.css" rel="stylesheet">
+        <link href="resources/vendors/zwicon/zwicon.min.css" rel="stylesheet">
+        <link href="resources/vendors/overlay-scrollbars/OverlayScrollbars.min.css" rel="stylesheet">
+        <link href="resources/vendors/fullcalendar/core/main.min.css" rel="stylesheet">
+        <link href="resources/vendors/fullcalendar/daygrid/main.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="resources/vendors/sweetalert2/sweetalert2.min.css">
+        <link rel="stylesheet" href="resources/vendors/select2/css/select2.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="resources/vendors/dropzone/dropzone.css">
+        <link rel="stylesheet" href="resources/vendors/flatpickr/flatpickr.min.css" />
+        <link rel="stylesheet" href="resources/vendors/nouislider/nouislider.min.css">
+        <link rel="stylesheet" href="resources/vendors/bootstrap-colorpicker/css/bootstrap-colorpicker.css">
+        <link rel="stylesheet" href="resources/vendors/trumbowyg/ui/trumbowyg.min.css">
+        <link rel="stylesheet" href="resources/vendors/rateyo/jquery.rateyo.min.css">
+
+        <!-- App styles -->
+        <link rel="stylesheet" href="resources/css/app.min.css">
+
+
+        <!-- Demo only -->
+        <link rel="stylesheet" href="demo/css/demo.css">
+        <style type="text/css">
+            .prices-tickers {
+                position: fixed;
+                bottom: 0;
+                background-color: #1e262c;
+                padding: 5px;
+                z-index: 999;
+                width: 100%;
+            }
+            
+            /* OUTER CONTAINER */
+            .tcontainer {
+                width: 100%;
+                padding: 10px;
+                overflow: hidden; /* Hide scroll bar */
+            }
+             
+            /* MIDDLE CONTAINER */
+            .ticker-wrap {
+                width: 100%;
+                padding-left: 100%; /* Push contents to right side of screen */
+                background-color: #1e262c;
+                color: #fff;
+            }
+
+            /* INNER CONTAINER */
+            @keyframes ticker {
+                0% { transform: translate3d(0, 0, 0); }
+                100% { transform: translate3d(-100%, 0, 0); }
+            }
+
+            .ticker-move {
+                /* Basically move items from right side of screen to left in infinite loop */
+                display: inline-block;
+                white-space: nowrap;
+                padding-right: 100%;
+                animation-iteration-count: infinite;
+                animation-timing-function: linear;
+                animation-name: ticker;
+                animation-duration: 155s;
+            }
+
+            .ticker-move:hover{
+                animation-play-state: paused; /* Pause scroll on mouse hover */
+            }
+
+            /* ITEMS */
+            .ticker-item{
+                display: inline-block; /* Lay items in a horizontal line */
+                padding: 0 2rem;
+            }
+
+            .modal-content {
+                position: relative;
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-orient: vertical;
+                -webkit-box-direction: normal;
+                -ms-flex-direction: column;
+                flex-direction: column;
+                width: 100%;
+                color: #436c84;
+                pointer-events: auto;
+                background-color: #242d32;
+                background-clip: padding-box;
+                border: 0 solid rgba(0,0,0,.2);
+                border-radius: .3rem;
+                outline: 0;
+            }
+
+            .stats__info {
+                font-size: 20px;
+            }
+
+            .text-uppercase {
+                text-transform: uppercase!important;
+            }
+
+            .passport-preview {
+                border-radius: 4px;
+                border: 1px solid #CCC;
+            }
+        </style>
+
+        <!-- Jquery init -->
+        <script src="resources/vendors/jquery/jquery.min.js"></script>
+        <!-- <script src="js/font-awesome.js"></script> -->
+        <script src="js/font-awesome.min.js"></script>
+
+        <!-- Vendors: Data tables -->
+        <script src="resources/vendors/datatables/jquery.dataTables.min.js"></script>
+        <script src="resources/vendors/datatables/datatables-buttons/dataTables.buttons.min.js"></script>
+        <script src="resources/vendors/datatables/datatables-buttons/buttons.print.min.js"></script>
+        <script src="resources/vendors/jszip/jszip.min.js"></script>
+        <script src="resources/vendors/datatables/datatables-buttons/buttons.html5.min.js"></script>
+    </head>
+
+    <body style="margin-bottom: 115px;">
+        <div class="page-loader">
+            <div class="loader">
+                <i></i>
+                <i></i>
+                <i></i>
+                <i></i>
+                <i></i>
+                <i></i>
+            </div>
+        </div>
+
+        {{{ body }}}
+
+        <div class="prices-tickers">
+            <div class="tcontainer">
+                <div class="ticker-wrap">
+                    <div class="ticker-move"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vendors -->
+        <script src="js/mini-database.js"></script>
+        <script src="resources/vendors/popper.js/popper.min.js"></script>
+        <script src="resources/vendors/bootstrap/js/bootstrap.min.js"></script>
+        <script src="resources/vendors/headroom/headroom.min.js"></script>
+        <script src="resources/vendors/overlay-scrollbars/jquery.overlayScrollbars.min.js"></script>
+        <script src="resources/vendors/flot/jquery.flot.js"></script>
+        <script src="resources/vendors/flot/jquery.flot.resize.js"></script>
+        <script src="resources/vendors/flot/flot.curvedlines/curvedLines.js"></script>
+        <script src="resources/vendors/sparkline/jquery.sparkline.min.js"></script>
+        <script src="resources/vendors/easy-pie-chart/jquery.easypiechart.min.js"></script>
+        <script src="resources/vendors/jqvmap/jquery.vmap.min.js"></script>
+        <script src="resources/vendors/jqvmap/maps/jquery.vmap.world.js"></script>
+        <script src="resources/vendors/fullcalendar/core/main.min.js"></script>
+        <script src="resources/vendors/fullcalendar/daygrid/main.min.js"></script>
+        <script src="resources/vendors/sweetalert2/sweetalert2.all.min.js"></script>
+        <script src="resources/vendors/select2/js/select2.full.min.js"></script>
+        <script src="resources/vendors/jquery-mask-plugin/jquery.mask.min.js"></script>
+        <script src="resources/vendors/dropzone/dropzone.min.js"></script>
+        <script src="resources/vendors/flatpickr/flatpickr.min.js"></script>
+        <script src="resources/vendors/nouislider/nouislider.min.js"></script>
+        <script src="resources/vendors/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+        <script src="resources/vendors/trumbowyg/trumbowyg.min.js"></script>
+        <script src="resources/vendors/rateyo/jquery.rateyo.min.js"></script>
+        <script src="resources/vendors/jquery-text-counter/textcounter.min.js"></script>
+        <script src="resources/vendors/autosize/autosize.min.js"></script>
+        <!-- <script src="js/amcharts/core.js"></script>
+        <script src="js/amcharts/charts.js"></script>
+        <script src="js/amcharts/maps.js"></script> -->
+
+        <!-- Site Functions & Actions -->
+        <script src="resources/js/app.min.js"></script>
+        <script src="js/numeral.js"></script>
+        <script src="js/moments.js"></script>
+        <script type="text/javascript">
+            // if user is logged in
+            if($("#user_id").val()){
+                getAccountBalance();
+            }
+
+            $("#before-search").html(`
+                <i class="navigation-toggle zwicon-hamburger-menu d-xl-none"></i>
+                <div class="logo d-none d-md-block">
+                    <a href="">
+                        Tridex
+                    </a>
+                    <hr />
+                    <span>
+                        Balance: <span id="account_balance">&#8358;0.00</span>
+                    </span> <hr />
+                    <span>
+                        <i class="zwicon-user"></i> Stock Broker 
+                    </span> <br />
+                </div>
+            `);
+        
+            $("#sidebar-links").html(`
+                <aside class="sidebar navigation">
+                    <div class="scrollbar">
+                        <ul class="navigation__menu">
+                            <li>
+                                <a href="dashboard"><i class="zwicon-home text-green"></i>Dashboard</a>
+                            </li>
+                            <li>
+                                <a href="investments"><i class="zwicon-edit-square-feather text-green"></i>Investments</a>
+                            </li>
+                            <li class="navigation__sub">
+                                <a href="" data-mae-action="submenu-toggle" class="text-active-amber "><i class="zwicon-layout-2 text-amber"></i>Trade Room</a>
+                                <ul>
+                                    <li>
+                                        <a href="equities"><i class="zwicon-line-chart text-green"></i> Equity</a>
+                                    </li>
+                                    <li>
+                                        <a href="treasury"><i class="zwicon-line-chart text-green"></i> Treasury Bills</a>
+                                    </li>
+                                    <li>
+                                        <a href="bonds"><i class="zwicon-line-chart text-green"></i> Bonds</a>
+                                    </li>
+                                    <li>
+                                        <a href="etfs"><i class="zwicon-line-chart text-green"></i> ETFs</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="customer"><i class="zwicon-tray-stack text-green"></i>Customer's Account</a>
+                            </li>
+                            <li>
+                                <a href="loans"><i class="zwicon-tray-stack text-cyan"></i>Apply for Loans</a>
+                            </li>
+                            <li>
+                                <a href="savings"><i class="zwicon-tray-stack text-yellow"></i>Savings</a>
+                            </li>
+                            <li>
+                                <a href="deposits"><i class="zwicon-tray-stack text-green"></i>Deposit (<span class="text-yellow">Personal</span>)</a>
+                            </li>
+                            <li>
+                                <a href="withdraw"><i class="zwicon-note text-green"></i>Withdraw</a>
+                            </li>
+                            
+                            <li>
+                                <a href="prices"><i class="zwicon-repository text-green"></i>Daily Prices</a>
+                            </li>
+                            <li>
+                                <a href="reports"><i class="zwicon-tray-stack text-green"></i>Reports</a>
+                            </li>
+                            <li class="navigation__sub">
+                                <a href="" data-mae-action="submenu-toggle" class="text-active-amber "><i class="zwicon-line-chart text-amber"></i>Auction Room</a>
+                                <ul>
+                                    <li>
+                                        <a href="auctions#equities"><i class="zwicon-line-chart text-green"></i> Equities</a>
+                                        <a href="auctions#etfs"><i class="zwicon-line-chart text-green"></i> ETFs</a>
+                                        <a href="auctions#treasury"><i class="zwicon-line-chart text-green"></i> Treasury Bills</a>
+                                        <a href="auctions#bonds"><i class="zwicon-line-chart text-green"></i> Bonds</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="gls"><i class="zwicon-tray-stack text-cyan"></i>General Ledger</a>
+                            </li>
+                            <li class="navigation__sub">
+                                <a href="" data-mae-action="submenu-toggle" class="text-active-amber "><i class="zwicon-layout-2 text-amber"></i>Accounting</a>
+                                <ul>
+                                    <li>
+                                        <a href="single-entry"><i class="zwicon-tray-stack text-green"></i> Single Entry</a>
+                                    </li>
+                                    <li>
+                                        <a href="double-entry"><i class="zwicon-tray-stack text-green"></i> Double Entry</a>
+                                    </li>
+                                    <li>
+                                        <a href="accounting"><i class="zwicon-tray-stack text-green"></i> Setup </a>
+                                    </li>
+                                    <li>
+                                        <a href="end-of-day"><i class="zwicon-tray-stack text-green"></i> End of Day</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="menus"><i class="zwicon-tray-stack text-cyan"></i>Menus</a>
+                            </li>
+                            <li>
+                                <a href="access"><i class="zwicon-tray-stack text-cyan"></i>Permissions</a>
+                            </li>
+                            <li>
+                                <a href="audit-logs"><i class="zwicon-tray-stack text-blue"></i>Activity Logs</a>
+                            </li>
+                            <li>
+                                <a href="admin-settings"><i class="zwicon-tray-stack text-blue"></i>Application Settings</a>
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+            `);
+
+            getEquitiesTicker();
+
+            function getEquitiesTicker() {
+                // fetch(`http://www.nse.com.ng/REST/api/statistics/equities/?market=&sector=&orderby=&pageSize=190&pageNo=0`, {
+                //     method: 'GET',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     }
+                // }).then(r => {
+                //     return r.json();
+                // }).then(results => {
+                    // console.log(results);
+                    $("#ticker-wrapper").html("");
+                    $.each(equities_prices, function(index, val) {
+                        $(".ticker-move").append(`
+                            <div class="ticker-item">
+                                ${val.Symbol} <span class="text-green">&#8358;${numeral(val.PrevClosingPrice).format('0,0.00')}</span> | <span class="text-green">&#8358;${numeral(val.OpeningPrice).format('0,0.00')}</span>
+                            </div>
+                        `);
+                    });
+                // }).catch(err => {
+                //     console.log(err);
+                // })
+            }
+
+            function getAccountBalance() {
+                var user_id = $("#user_id").val();
+                fetch(`${endpoint}/account/balance/${user_id}/1`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }).then(r => {
+                    return r.json();
+                }).then(results => {
+                    // console.log(results);
+                    $("#account_balance").html(`
+                        &#8358; ${numeral(results.account_balance).format('0,0.00')}
+                    `);
+                    $("#equity_balance").html(`
+                        &#8358; ${numeral(results.equity_balance).format('0,0.00')}
+                    `);
+                }).catch(err => {
+                    console.log(err);
+                })
+            }
+        </script>
+    </body>
+</html>

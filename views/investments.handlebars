@@ -1,0 +1,613 @@
+<style type="text/css">
+    div.dataTables_wrapper {
+        width: 110%;
+        margin: auto auto;
+    }
+</style>
+<header class="header">
+    <div class="header__main">
+        <div id="before-search"></div>
+        
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        
+
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+    <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+    <section class="content">
+        <header class="content__title">
+            <h1>Investments <small>Track all investment position</small></h1>
+        </header>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="tab-container">
+                    <ul class="nav nav-tabs nav-fill" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#loans" role="tab">Loans</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#savings" role="tab">Savings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#equity" role="tab">Equities</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#etfs" role="tab">ETFs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tbills" role="tab">Treasury</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#bonds" role="tab">Bonds</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane active fade show" id="loans" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table" id="loans-stock-table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Acct Code</th>
+                                            <th>Customer</th>
+                                            <th>Principal</th>
+                                            <th>Interest</th>
+                                            <th>Amount</th>
+                                            <th>Rate (%)</th>
+                                            <th>Duration</th>
+                                            <th>Daily Payment</th>
+                                            <th>Weekly Payment</th>
+                                            <th>Monthly Payment</th>
+                                            <th>Balance</th>
+                                            <th>Status</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="load-loans-stocks-balances"></tbody>
+                                    <tfoot id="load-loans-stocks-balances-footer"></tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="savings" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table" id="savings-stock-table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Stock</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Amount</th>
+                                            <th>W.A. Price</th>
+                                            <th>Market Value</th>
+                                            <th>Holding Value</th>
+                                            <th>Dynamic P/L</th>
+                                            <!-- <th>Date</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="load-equities-stocks-balances">
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="equity" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table" id="equity-stock-table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Stock</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Amount</th>
+                                            <th>W.A. Price</th>
+                                            <th>Market Value</th>
+                                            <th>Holding Value</th>
+                                            <th>Dynamic P/L</th>
+                                            <!-- <th>Date</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="load-equities-stocks-balances">
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="etfs" role="tabpanel">
+                            <p>ETFs is currently not available</p>
+                        </div>
+                        <div class="tab-pane fade" id="tbills" role="tabpanel">
+                            <p>Treasury bills is currently not available</p>
+                        </div>
+                        <div class="tab-pane fade" id="bonds" role="tabpanel">
+                            <p>Bonds is currently not available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- SHOW TRANSACTIONS HISTORY -->
+<div class="modal fade" id="show-transaction-history" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Transaction History</h4>
+            </div>
+            <div class="modal-body">
+                <div id="load-stock-transaction-div"></div>
+            </div>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    <button class="btn btn-flat" type="button" data-dismiss="modal">
+                        close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SHOW TRANSACTIONS HISTORY -->
+<div class="modal fade" id="show-make-payment-modal" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Transaction History</h4>
+            </div>
+            <div class="modal-body">
+                <form method="POST" onsubmit="return postLoanDeposit();" class="row">
+                    <div class="input-group mb-3 col-md-12">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">&#8358;</span>
+                        </div>
+                        <input type="text" onkeyup="formatAmount()" id="deposit-amount" class="form-control input mask" data-mask="00000000000" placeholder="Enter amount" required="">
+                        <div class="input-group-append">
+                            <span class="input-group-text">.00</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group mb-3 col-md-12">
+                        <div class="form-control" id="preview-amount"></div>
+                    </div>
+
+                    <div class="input-group mb-3 col-md-12">
+                        <button class="btn btn-outline-success col-md-12">
+                            Pay
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    <button class="btn btn-flat" type="button" data-dismiss="modal">
+                        close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SHOW TRANSACTIONS HISTORY -->
+<div class="modal fade" id="show-print-receipt-modal" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Receipt</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>
+                                <p class="small">
+                                    Makis Reigns Monee LTD. &copy; RC: 1580691
+                                </p>
+                                <p class="small">
+                                    91, Bale Street, New Road Bus/Stop, Olodi Apapa, Lagos
+                                </p>
+                                <p class="small">
+                                    Tel: 081 688 17153, 080 984 23240
+                                </p>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Customer Name</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Account Code</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Loan Amount</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Amount Paid</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Loan Balance</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Date</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>No. of Payment</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <a href="javascript:void(0);" onclick="printReceipt()" class="btn btn-outline-info">
+                                    <i class="fa fa-print"></i> Print
+                                </a>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    <button class="btn btn-flat" type="button" data-dismiss="modal">
+                        close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        getEquityStockBalances();
+        getAllLoans();
+    });
+
+    function formatTable(table_id) {
+        if($(`#${table_id}`)[0]) {
+            $(`#${table_id}`).DataTable({
+                autoWidth:!1, responsive:!0, lengthMenu:[[5, 10, 15, -1], ["5 Rows", "10 Rows", "15 Rows", "Everything"]], language: {
+                    searchPlaceholder: "Search for records..."
+                }
+                , sDom:'<"dataTables__top"flB<"dataTables_actions">>rt<"dataTables__bottom"ip><"clear">', buttons:[ {
+                    extend: "excelHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "csvHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "print", title: "Material Admin"
+                }
+                ], initComplete:function() {
+                    $(".dataTables_actions").html('<i class="zwicon-more-h" data-toggle="dropdown" /><div class="dropdown-menu dropdown-menu-right"><a href="" data-table-action="print" class="dropdown-item">Print</a><a href="" data-table-action="fullscreen" class="dropdown-item">Fullscreen</a><div class="dropdown-divider" /><div class="dropdown-header border-bottom-0 pb-0">Download as:</div><a href="" data-table-action="excel" class="dropdown-item">Excel (.xlsx)</a><a href="" data-table-action="csv" class="dropdown-item">CSV (.csv)</a></div>')
+                }
+            }
+            ), $("body").on("click", "[data-table-action]", function(e) {
+                e.preventDefault();
+                var t=$(this).data("table-action");
+                if("excel"===t&&$("#data-table_wrapper").find(".buttons-excel").click(), "csv"===t&&$("#data-table_wrapper").find(".buttons-csv").click(), "print"===t&&$("#data-table_wrapper").find(".buttons-print").click(), "fullscreen"===t) {
+                    var a=$(this).closest(".card");
+                    a.hasClass("card--fullscreen")?(a.removeClass("card--fullscreen"), $body.removeClass("data-table-toggled")): (a.addClass("card--fullscreen"), $body.addClass("data-table-toggled"))
+                }
+            })
+        }
+    }
+
+    function postLoanDeposit() {
+        $("#show-make-payment-modal").modal('hide');
+        swal.fire(
+            "success",
+            "Your payment was successful, customer will receive an sms alert shortly.",
+            "success"
+        );
+
+        showReceiptModal()
+
+        return false;
+    }
+
+    function formatAmount() {
+        var amount  = $("#deposit-amount").val();
+        var filtered = parseFloat(amount);
+        $("#preview-amount").html(`NGN: ${numeral(filtered).format('0,0.00')}`);
+    }
+
+    function getAllLoans() {
+        fetch(`loans/all`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            $("#load-loans-stocks-balances").html("");
+
+            var principal = 0;
+            var interest = 0;
+            var amount = 0;
+
+            $.each(results, function(index, val) {
+                if(val.status == 1){
+                    val.status = "Running";
+                }else if(val.status == 2){
+                    val.status = "Closed";
+                }
+
+                principal = (principal + val.principal);
+                interest = (interest + val.interest);
+                amount = (amount + val.amount);
+
+                $("#load-loans-stocks-balances").append(`
+                    <tr>
+                        <td>0${val.customer.acct_code}</td>
+                        <td>${val.customer.full_name}</td>
+                        <td>&#8358;${numeral(val.principal).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(val.interest).format('0,0.00')}</td>
+                        <td class="text-success">&#8358;${numeral(val.amount).format('0,0.00')}</td>
+                        <td>${numeral(val.percentage).format('0')}%</td>
+                        <td>${val.daily_duration} <span style="font-size:10px;">day(s)</span></td>
+                        <td>&#8358;${numeral(val.daily_payment).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(val.weekly_payment).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(val.monthly_payment).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(0).format('0,0.00')}</td>
+                        <td class="text-success">${val.status}</td>
+                        <td>${moment(val.loan_start_date).format('L')}</td>
+                        <td>${moment(val.loan_end_date).format('L')}</td>
+                        <td>
+                            <a href="javascript:void(0);" onclick="showMakeRepaymentModal(${val.id})" class="btn btn-outline-primary btn-sm">
+                                Repayment
+                            </a>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            $("#load-loans-stocks-balances-footer").append(`
+                <tr>
+                    <th></th>
+                    <th><b>Total</b>:</th>
+                    <th>&#8358;${numeral(principal).format('0,0.00')}</th>
+                    <th>&#8358;${numeral(interest).format('0,0.00')}</th>
+                    <th class="text-success">&#8358;${numeral(amount).format('0,0.00')}</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>&#8358;${numeral(0).format('0,0.00')}</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            `);
+
+            formatTable('loans-stock-table');
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function showMakeRepaymentModal() {
+        $("#show-make-payment-modal").modal();
+    }
+
+    function formatTable(table_id) {
+        if($(`#${table_id}`)[0]) {
+            $(`#${table_id}`).DataTable({
+                scrollX: true,
+                autoWidth:!1, responsive:!0, lengthMenu:[[5, 10, 15, -1], ["5 Rows", "10 Rows", "15 Rows", "Everything"]], language: {
+                    searchPlaceholder: "Search for records..."
+                }
+                , sDom:'<"dataTables__top"flB<"dataTables_actions">>rt<"dataTables__bottom"ip><"clear">', buttons:[ {
+                    extend: "excelHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "csvHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "print", title: "Material Admin"
+                }
+                ], initComplete:function() {
+                    $(".dataTables_actions").html('<i class="zwicon-more-h" data-toggle="dropdown" /><div class="dropdown-menu dropdown-menu-right"><a href="" data-table-action="print" class="dropdown-item">Print</a><a href="" data-table-action="fullscreen" class="dropdown-item">Fullscreen</a><div class="dropdown-divider" /><div class="dropdown-header border-bottom-0 pb-0">Download as:</div><a href="" data-table-action="excel" class="dropdown-item">Excel (.xlsx)</a><a href="" data-table-action="csv" class="dropdown-item">CSV (.csv)</a></div>')
+                }
+            }
+            ), $("body").on("click", "[data-table-action]", function(e) {
+                e.preventDefault();
+                var t=$(this).data("table-action");
+                if("excel"===t&&$("#data-table_wrapper").find(".buttons-excel").click(), "csv"===t&&$("#data-table_wrapper").find(".buttons-csv").click(), "print"===t&&$("#data-table_wrapper").find(".buttons-print").click(), "fullscreen"===t) {
+                    var a=$(this).closest(".card");
+                    a.hasClass("card--fullscreen")?(a.removeClass("card--fullscreen"), $body.removeClass("data-table-toggled")): (a.addClass("card--fullscreen"), $body.addClass("data-table-toggled"))
+                }
+            })
+        }
+    }
+
+    function getEquityStockBalances() {
+        var user_id = $("#user_id").val();
+
+        fetch(`${endpoint}/stocks/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            var sn = 0;
+            $("#load-equities-stocks-balances").html("");
+            $.each(results, async function(index, val) {
+                var equity_details = await resolveEquityDetails(val.equity_id).then(eq => eq);
+                var market_value = equity_details.open_price * val.units;
+                var holding_value = val.wa_price * val.units;
+                // console.log(equity_details);
+                var indicator_trend;
+                if(market_value > holding_value){
+                    indicator_trend = `<i class="fa fa-angle-up text-success"></i>`;
+                }else if(market_value < holding_value){
+                    indicator_trend = `<i class="fa fa-angle-down text-danger"></i>`;
+                }else{
+                    indicator_trend = `<i class="fa fa-angbullseyele text-info"></i>`;
+                }
+
+                sn++;
+                $("#load-equities-stocks-balances").append(`
+                    <tr>
+                        <td>${sn}</td>
+                        <td>
+                            <a href="javascript:void(0);" onclick="showTransactions(${val.equity_id})" class="class_name">
+                                ${equity_details.security}
+                            </a>
+                        </td>
+                        <td>${numeral(val.units).format('0,0')}</td>
+                        <td>&#8358;${numeral(val.price).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(val.price * val.units).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(val.wa_price).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(market_value).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(holding_value).format('0,0.00')}</td>
+                        <td>${indicator_trend} &#8358;${numeral(market_value - holding_value).format('0,0.00')}</td>
+                        <!--<td>${moment(val.updated_at).format('LL')}</td>-->
+                    </tr>
+                `);
+            });
+
+            setTimeout((t) => {
+                formatTable('equity-stock-table');
+            }, 1000 * 2);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function showTransactions(equity_id) {
+        console.log(equity_id);
+        fetch(`${endpoint}/stock/history/${equity_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            console.log(results);
+            $("#load-stock-transaction-div").html(`
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="load-stock-history"></tbody>
+                </table>
+            `);
+            var sn = 0;
+            $.each(results, function(index, val) {
+                sn++;
+                var status;
+                if(val.transaction_type == 1){
+                    status = `<i class="fa fa-arrow-down text-danger"></i>`
+                }else if(val.transaction_type == 2){
+                    status = `<i class="fa fa-arrow-up text-success"></i>`
+                }
+
+                $("#load-stock-history").append(`
+                    <tr>
+                        <td>${sn}</td>
+                        <td>${status} ${val.narration}</td>
+                        <td>&#8358; ${numeral(val.amount).format('0,0.00')}</td>
+                        <td>${moment(val.created_at).format('LL')} ${moment(val.created_at).format('LTS')}</td>
+                    </tr>
+                `);
+            });
+            $("#show-transaction-history").modal();
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function resolveEquityDetails(equity_id) {
+        return new Promise((resolve, reject) => {
+            fetch(`${endpoint}/equity/${equity_id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(r => {
+                return r.json();
+            }).then(results => {
+                resolve(results);
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    function showReceiptModal() {
+        $("#show-print-receipt-modal").modal();
+    }
+</script>

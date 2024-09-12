@@ -1,0 +1,630 @@
+<header class="header">
+    <div class="header__main">
+        <div id="before-search"></div>
+        
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        
+
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+    <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+    <section class="content">
+        <div class="content__inner">
+            <header class="content__title">
+                <h1>Auctions</h1>
+            </header>
+
+            <div class="card mb-5" id="equities">
+                <div class="card-body">
+                    <h4 class="card-title">EQUITIES</h4>
+                    <h6 class="card-subtitle">Today's prices index
+
+                        <a href="javascript:void(0);" id="fetch-prices-1" onclick="fetchPrices(1)" class="btn btn-outline-primary btn-sm float-right">
+                            Fetch Price
+                        </a>
+                    </h6>
+                    <div class="table-responsive data-table">
+                        <table id="equity-auction-table" class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Equity</th>
+                                    <th>Prev. Closing Price</th>
+                                    <th>Opening Price</th>
+                                    <th>Close</th>
+                                    <th>Last updated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="load-current-equity-prices"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-5" id="etfs">
+                <div class="card-body">
+                    <h4 class="card-title">Etfs (Exchange Traded Funds)</h4>
+                    <h6 class="card-subtitle">Today's prices index
+
+                        <a href="javascript:void(0);" id="fetch-prices-2" onclick="fetchPrices(2)" class="btn btn-outline-primary btn-sm float-right">
+                            Fetch Price
+                        </a>
+                    </h6>
+                    <div class="table-responsive data-table">
+                        <table id="etfs-auction-table" class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Security</th>
+                                    <th>Prev. close Price</th>
+                                    <th>Opening Price</th>
+                                    <th>Close</th>
+                                    <th>Last updated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="load-current-etfs-prices"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-5" id="treasury">
+                <div class="card-body">
+                    <h4 class="card-title">Treasury BillS</h4>
+                    <h6 class="card-subtitle">Today's prices index
+
+                        <a href="javascript:void(0);" id="fetch-prices-3" onclick="fetchPrices(3)" class="btn btn-outline-primary btn-sm float-right">
+                            Fetch Price
+                        </a>
+                    </h6>
+                    <div class="table-responsive data-table">
+                        <table class="table" id="treasury-auction-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Security</th>
+                                    <th>Discount Yield</th>
+                                    <th>Price</th>
+                                    <th>Maturity Date</th>
+                                    <th>Last updated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="load-current-treasury-prices">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-5" id="bonds">
+                <div class="card-body">
+                    <h4 class="card-title">Bonds</h4>
+                    <h6 class="card-subtitle">Today's prices index
+
+                        <a href="javascript:void(0);" id="fetch-prices-4" onclick="fetchPrices(4)" class="btn btn-outline-primary btn-sm float-right">
+                            Fetch Price
+                        </a>
+                    </h6>
+                    <div class="table-responsive data-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Security</th>
+                                    <th>Face Value</th>
+                                    <th>Price</th>
+                                    <th>Maturity Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="load-current-bonds-prices">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script src="js/numeral.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        getEquities();
+        getEtfs();
+        getTreasury();
+        getEquitiesTicker();
+    });
+
+    function formatTable(table_id) {
+        if($(`#${table_id}`)[0]) {
+            $(`#${table_id}`).DataTable( {
+                autoWidth:!1, responsive:!0, lengthMenu:[[5, 10, 15, -1], ["5 Rows", "10 Rows", "15 Rows", "Everything"]], language: {
+                    searchPlaceholder: "Search for records..."
+                }
+                , sDom:'<"dataTables__top"flB<"dataTables_actions">>rt<"dataTables__bottom"ip><"clear">', buttons:[ {
+                    extend: "excelHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "csvHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "print", title: "Material Admin"
+                }
+                ], initComplete:function() {
+                    $(".dataTables_actions").html('<i class="zwicon-more-h" data-toggle="dropdown" /><div class="dropdown-menu dropdown-menu-right"><a href="" data-table-action="print" class="dropdown-item">Print</a><a href="" data-table-action="fullscreen" class="dropdown-item">Fullscreen</a><div class="dropdown-divider" /><div class="dropdown-header border-bottom-0 pb-0">Download as:</div><a href="" data-table-action="excel" class="dropdown-item">Excel (.xlsx)</a><a href="" data-table-action="csv" class="dropdown-item">CSV (.csv)</a></div>')
+                }
+            }
+            ), $("body").on("click", "[data-table-action]", function(e) {
+                e.preventDefault();
+                var t=$(this).data("table-action");
+                if("excel"===t&&$("#data-table_wrapper").find(".buttons-excel").click(), "csv"===t&&$("#data-table_wrapper").find(".buttons-csv").click(), "print"===t&&$("#data-table_wrapper").find(".buttons-print").click(), "fullscreen"===t) {
+                    var a=$(this).closest(".card");
+                    a.hasClass("card--fullscreen")?(a.removeClass("card--fullscreen"), $body.removeClass("data-table-toggled")): (a.addClass("card--fullscreen"), $body.addClass("data-table-toggled"))
+                }
+            }
+            )
+        }
+    }
+
+    function getEquitiesTicker() {
+        // fetch(`http://www.nse.com.ng/REST/api/statistics/equities/?market=&sector=&orderby=&pageSize=190&pageNo=0`, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     }
+        // }).then(r => {
+        //     return r.json();
+        // }).then(results => {
+            // console.log(results);
+            // $("#load-current-equity-prices").html("");
+            // $.each(equities_prices, function(index, val) {
+            //     $("#load-current-equity-prices").append(`
+            //         <tr>
+            //             <td>${val.Symbol}</td>
+            //             <td>&#8358;${numeral(val.PrevClosingPrice).format('0,0.00')}</td>
+            //             <td>&#8358;${numeral(val.OpeningPrice).format('0,0.00')}</td>
+            //             <td>&#8358;${numeral(val.ClosePrice).format('0,0.00')}</td>
+            //             <td>${numeral(val.Change).format('0,0.00')}</td>
+            //         <tr>
+            //     `);
+            // });
+
+        // }).catch(err => {
+        //     console.log(err);
+        // })
+    }
+
+    function getEquities() {
+        fetch(`${endpoint}/equity`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            var sn = 0;
+            $("#load-current-equity-prices").html("");
+            $.each(results, function(index, val) {
+                sn++;
+
+                if(val.updated_at == null){
+                    val.updated_at = 'Not available'
+                    $("#load-current-equity-prices").append(`
+                        <tr class="text-warning">
+                            <td>${sn}</td>
+                            <td>${val.security}</td>
+                            <td>&#8358; ${val.previous_closing_price}</td>
+                            <td>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">&#8358;</span>
+                                    </div>
+                                    <input type="number" onblur="updatePriceChange(this, ${val.id})" step="any" min="0" class="form-control" placeholder="Enter amount" value="${val.open_price}" placeholder="Price">
+                                </div>
+                            </td>
+                            <td>&#8358; ${val.close_price}</td>
+                            <td>${val.updated_at}</td>
+                        </tr>
+                    `);
+                }else{
+                    $("#load-current-equity-prices").append(`
+                        <tr>
+                            <td>${sn}</td>
+                            <td>${val.security}</td>
+                            <td>&#8358; ${val.previous_closing_price}</td>
+                            <td>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">&#8358;</span>
+                                    </div>
+                                    <input type="number" onblur="updatePriceChange(this, ${val.id})" step="any" min="0" class="form-control" placeholder="Enter amount" value="${val.open_price}" placeholder="Price">
+                                </div>
+                            </td>
+                            <td>&#8358; ${val.close_price}</td>
+                            <td>${val.updated_at}</td>
+                        </tr>
+                    `);
+                }
+            });
+
+            setTimeout((t) => {
+                formatTable('equity-auction-table');
+            }, 500 * 2);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function getEtfs() {
+        fetch(`${endpoint}/etfs`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            var sn = 0;
+            $("#load-current-etfs-prices").html("");
+            $.each(results, function(index, val) {
+                sn++;
+
+                if(val.updated_at == null){
+                    val.updated_at = 'Not available'
+                    $("#load-current-etfs-prices").append(`
+                        <tr class="text-warning">
+                            <td>${sn}</td>
+                            <td>${val.security}</td>
+                            <td>&#8358; ${val.previous_closing_price}</td>
+                            <td>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">&#8358;</span>
+                                    </div>
+                                    <input type="number" onblur="updatePriceChange(this, ${val.id})" step="any" min="0" class="form-control" placeholder="Enter amount" value="${val.open_price}" placeholder="Price">
+                                </div>
+                            </td>
+                            <td>&#8358; ${val.close_price}</td>
+                            <td>${val.updated_at}</td>
+                        </tr>
+                    `);
+                }else{
+                    $("#load-current-etfs-prices").append(`
+                        <tr>
+                            <td>${sn}</td>
+                            <td>${val.security}</td>
+                            <td>&#8358; ${val.previous_closing_price}</td>
+                            <td>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">&#8358;</span>
+                                    </div>
+                                    <input type="number" onblur="updatePriceChange(this, ${val.id})" step="any" min="0" class="form-control" placeholder="Enter amount" value="${val.open_price}" placeholder="Price">
+                                </div>
+                            </td>
+                            <td>&#8358; ${val.close_price}</td>
+                            <td>${val.updated_at}</td>
+                        </tr>
+                    `);
+                }
+            });
+
+            setTimeout((t) => {
+                formatTable('etfs-auction-table');
+            }, 500 * 2);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function getTreasury() {
+        fetch(`${endpoint}/treasury`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            var sn = 0;
+            $("#load-current-treasury-prices").html("");
+            $.each(results, function(index, val) {
+                sn++;
+                if(val.updated_at == null){
+                    val.updated_at = 'Not available'
+                    $("#load-current-treasury-prices").append(`
+                        <tr class="text-warning">
+                            <td>${sn}</td>
+                            <td>${val.security}</td>
+                            <td>${val.discount_yield}</td>
+                            <td>${val.prev_closing_mkt_price}</td>
+                            <td>${val.maturity}</td>
+                            <td>${val.updated_at}</td>
+                        </tr>
+                    `);
+                }else{
+                    $("#load-current-treasury-prices").append(`
+                        <tr>
+                            <td>${sn}</td>
+                            <td>${val.security}</td>
+                            <td>${val.discount_yield}</td>
+                            <td>${val.prev_closing_mkt_price}</td>
+                            <td>${val.maturity}</td>
+                            <td>${val.updated_at}</td>
+                        </tr>
+                    `);
+                }
+            });
+
+            setTimeout((t) => {
+                formatTable('treasury-auction-table');
+            }, 500 * 2);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function updatePriceChange(element, id) {
+        // console.log(id);
+        // console.log(element.value);
+
+        var query = {
+            equity_id: id,
+            open_price: element.value
+        }
+
+        fetch(`${endpoint}/equity/price/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(query)
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            console.log(results);
+            swal.fire(
+                results.status,
+                results.message,
+                results.status,
+            );
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    // prices from global markets
+    function fetchPrices(product_type) {
+        switch (product_type) {
+            case 1:
+                fetchEquities();
+                break;
+            case 2:
+                fetchEtfs();
+                break;
+            case 3:
+                fetchTreasury();
+                break;
+            case 4:
+                fetchBonds()
+                break;
+            default:
+                // statements_def
+                console.log('None is ready!')
+                break;
+        }
+    }
+
+    async function fetchEquities() {
+        $("#fetch-prices-1").html('Fetching...');
+        for (var i = 0; i < equities_prices.length; i++) {
+            await updateEquityMarketPrices(equities_prices[i]).then(val => console.log(val));
+        }
+
+        $("#fetch-prices-1").html('Fetch Price');
+    }
+
+    async function fetchEtfs() {
+        $("#fetch-prices-1").html('Fetching...');
+        console.log(etfs_prices);
+        for (var i = 0; i < etfs_prices.length; i++) {
+            await updateEtfsMarketPrices(etfs_prices[i]).then(val => console.log(val));
+        }
+
+        $("#fetch-prices-1").html('Fetch Price');
+    }
+
+    async function fetchTreasury() {
+        $("#fetch-prices-1").html('Fetching...');
+        for (var i = 0; i < tbills_prices.length; i++) {
+            console.log(tbills_prices[i]);
+            if(tbills_prices[i].ProductID == "2"){
+                await updateTreasuryMarketPrices(tbills_prices[i]).then(val => console.log(val));
+            }
+        }
+
+        $("#fetch-prices-1").html('Fetch Price');
+    }
+
+    async function fetchBonds() {
+        $("#fetch-prices-1").html('Fetching...');
+        for (var i = 0; i < tbills_prices.length; i++) {
+            console.log(tbills_prices[i]);
+            if(tbills_prices[i].ProductID == "1"){
+                await updateBondsMarketPrices(tbills_prices[i]).then(val => console.log(val));
+            }
+        }
+
+        $("#fetch-prices-1").html('Fetch Price');
+    }
+
+    function updateEquityMarketPrices(equity) {
+        var query = {
+            "security": equity.Symbol,
+            "previous_closing_price": equity.PrevClosingPrice,
+            "open_price": equity.OpeningPrice,
+            "close_price": equity.ClosePrice,
+            "market": equity.Market,
+            "sector": equity.Sector
+        }
+        return new Promise((resolve, reject) => {
+            fetch(`auctions/equities`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(query)
+            }).then(r => {
+                return r.json();
+            }).then(results => {
+                resolve(results)
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    function updateEtfsMarketPrices(etf) {
+        var query = {
+            "security": etf.SYMBOL,
+            "previous_closing_price": etf.Value,
+            "open_price": etf.Value,
+            "close_price": etf.Value,
+            "market": "Main board",
+            "sector": "Financial Services"
+        }
+        return new Promise((resolve, reject) => {
+            fetch(`auctions/etfs`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(query)
+            }).then(r => {
+                return r.json();
+            }).then(results => {
+                resolve(results)
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    function updateTreasuryMarketPrices(treasury) {
+        var query = {
+            security: treasury.Description,
+            market: "Fixed Income",
+            sector: "Financial Services",
+            product_id: treasury.ProductID,
+            description: treasury.Description,
+            maturity: treasury.Maturity,
+            closing_price: parseFloat(treasury.ClosingPrice),
+            discount_yield: parseFloat(treasury.Yield),
+            closing_date: parseFloat(treasury.ClosingDate),
+            next_close_date: parseFloat(treasury.NextCloseDate),
+            closing_mkt_price: parseFloat(treasury.ClosingMktPrice),
+            prev_closing: parseFloat(treasury.PrevClosing),
+            next_closing: parseFloat(treasury.NextClosing),
+            prev_closing_mkt_price: parseFloat(treasury.PrevClosingMktPrice),
+            next_closing_mkt_price: parseFloat(treasury.NextClosingMktPrice),
+            EOM_mkt_price: parseFloat(treasury.EOMMktPrice),
+            EOY_mkt_price: parseFloat(treasury.EOYMktPrice),
+            EOM_date: treasury.EOMDate,
+            EOY_date: treasury.EOYDate,
+            prev_business_day: treasury.PrevBusinessDay,
+            prev_trade_date: treasury.PrevTradeDate,
+            month_start_date: treasury.MonthStartDate,
+            year_start_date: treasury.YearStartDate,
+            month_end_date: treasury.MonthEndDate,
+            year_end_date: treasury.YearEndDate,
+            cost_of_funds: treasury.CostOfFunds
+        }
+
+        return new Promise((resolve, reject) => {
+            fetch(`auctions/treasury`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(query)
+            }).then(r => {
+                return r.json();
+            }).then(results => {
+                resolve(results);
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    function updateBondsMarketPrices(bond) {
+        var query = {
+            security: bond.Description,
+            market: "Fixed Income",
+            sector: "Financial Services",
+            product_id: bond.ProductID,
+            description: bond.Description,
+            maturity: bond.Maturity,
+            closing_price: parseFloat(bond.ClosingPrice),
+            discount_yield: parseFloat(bond.Yield),
+            closing_date: parseFloat(bond.ClosingDate),
+            next_close_date: parseFloat(bond.NextCloseDate),
+            closing_mkt_price: parseFloat(bond.ClosingMktPrice),
+            prev_closing: parseFloat(bond.PrevClosing),
+            next_closing: parseFloat(bond.NextClosing),
+            prev_closing_mkt_price: parseFloat(bond.PrevClosingMktPrice),
+            next_closing_mkt_price: parseFloat(bond.NextClosingMktPrice),
+            EOM_mkt_price: parseFloat(bond.EOMMktPrice),
+            EOY_mkt_price: parseFloat(bond.EOYMktPrice),
+            EOM_date: bond.EOMDate,
+            EOY_date: bond.EOYDate,
+            prev_business_day: bond.PrevBusinessDay,
+            prev_trade_date: bond.PrevTradeDate,
+            month_start_date: bond.MonthStartDate,
+            year_start_date: bond.YearStartDate,
+            month_end_date: bond.MonthEndDate,
+            year_end_date: bond.YearEndDate,
+            cost_of_funds: bond.CostOfFunds
+        }
+
+        return new Promise((resolve, reject) => {
+            fetch(`auctions/bonds`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(query)
+            }).then(r => {
+                return r.json();
+            }).then(results => {
+                resolve(results);
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+</script>

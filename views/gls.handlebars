@@ -1,0 +1,524 @@
+<header class="header">
+    <div class="header__main">
+        <div id="before-search"></div>
+        
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        
+
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+    <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+    <section class="content">
+        <div class="content__inner">
+            <header class="content__title">
+                <h1> {{ user.name }} <small>Stock Broker</small></h1>
+            </header>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-body__title mb-5">Create General Ledger
+
+                        <a href="javascript:void(0);" onclick="showAddLedgerModal();" class="btn btn-outline-primary float-right">
+                            New
+                        </a>
+                    </h5>
+                    <hr />
+                    <p>
+                        Create a ledger account to track all general ledger...
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-body__title">All Ledgers</h5>
+                    <div class="table-responsive data-table">
+                        <table id="data-table" class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>REF</th>
+                                    <th>Owner</th>
+                                    <th>Description</th>
+                                    <th>Book Balance</th>
+                                    <th>Cleared Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="load-all-gls"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Add GL -->
+<div class="modal fade" id="add-ledger-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New</h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST" onsubmit="return saveGeneralLedger();" class="row">
+                    <div class="form-group mb-3 col-md-12">
+                        <label for="account_type_id">Account Type</label>
+                        <select class="form-control" id="account_type_id">
+                            <option value=""> -- select account -- </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3 col-md-12">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" placeholder="Eg, CASH AT BANK, EXPENSE ACCOUNT etc." required=""></textarea>
+                    </div>
+
+                    <div class="input-group mb-3 col-md-12">
+                        <button class="btn btn-outline-success col-md-12">
+                            Create
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Show Statement -->
+<div class="modal fade" id="gl-statement-modal" tabindex="-1">
+    <div class="modal-dialog modal-xl" style="background-color: #2b3c46;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p class="gl-account-title">Transaction History</p>
+                <button type="button" class="btn btn-link float-right" data-dismiss="modal">Close</button>
+            </div>
+            <div class="modal-body">
+                <div id="load-transaction-history-div"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Show Statement -->
+<div class="modal fade" id="gl-posting-entry-modal" tabindex="-1">
+    <div class="modal-dialog modal-xl" style="background-color: #2b3c46;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Transaction Posting</p>
+                <button type="button" class="btn btn-link float-right" data-dismiss="modal">Close</button>
+            </div>
+            <div class="modal-body">
+                <div id="load-posting-entry-div"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        fetchAllGl();
+        fetchAccountType();    
+    });
+
+    function formatTable(table_id) {
+        if($(`#${table_id}`)[0]) {
+            $(`#${table_id}`).DataTable({
+                autoWidth:!1, responsive:!0, lengthMenu:[[5, 10, 15, -1], ["5 Rows", "10 Rows", "15 Rows", "Everything"]], language: {
+                    searchPlaceholder: "Search for records..."
+                }
+                , sDom:'<"dataTables__top"flB<"dataTables_actions">>rt<"dataTables__bottom"ip><"clear">', buttons:[ {
+                    extend: "excelHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "csvHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "print", title: "Material Admin"
+                }
+                ], initComplete:function() {
+                    $(".dataTables_actions").html('<i class="zwicon-more-h" data-toggle="dropdown" /><div class="dropdown-menu dropdown-menu-right"><a href="" data-table-action="print" class="dropdown-item">Print</a><a href="" data-table-action="fullscreen" class="dropdown-item">Fullscreen</a><div class="dropdown-divider" /><div class="dropdown-header border-bottom-0 pb-0">Download as:</div><a href="" data-table-action="excel" class="dropdown-item">Excel (.xlsx)</a><a href="" data-table-action="csv" class="dropdown-item">CSV (.csv)</a></div>')
+                }
+            }
+            ), $("body").on("click", "[data-table-action]", function(e) {
+                e.preventDefault();
+                var t=$(this).data("table-action");
+                if("excel"===t&&$("#data-table_wrapper").find(".buttons-excel").click(), "csv"===t&&$("#data-table_wrapper").find(".buttons-csv").click(), "print"===t&&$("#data-table_wrapper").find(".buttons-print").click(), "fullscreen"===t) {
+                    var a=$(this).closest(".card");
+                    a.hasClass("card--fullscreen")?(a.removeClass("card--fullscreen"), $body.removeClass("data-table-toggled")): (a.addClass("card--fullscreen"), $body.addClass("data-table-toggled"))
+                }
+            })
+        }
+    }
+
+    function showAddLedgerModal() {
+        $("#add-ledger-modal").modal();
+    }
+
+    function saveGeneralLedger() {
+        var account_type_id     = $("#account_type_id").val();
+        var description         = $("#description").val();
+        var user_id             = 1;
+        var query   = {user_id, account_type_id, description}
+
+        fetch(`${endpoint}/gls`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(query)
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            swal.fire(
+                results.status,
+                results.message,
+                results.status,
+            );
+
+            if(results.status == "success"){
+                $("#add-ledger-modal").modal('hide');
+            }
+        }).catch(err => {
+            console.log(err);
+        })
+
+        // return void
+        return false;
+    }
+
+    function fetchAllGl() {
+        fetch(`${endpoint}/gls`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            var sn = 0;
+            $("#load-all-gls").html("");
+            $.each(results, async function(index, val) {
+                console.log(val);
+                if(val.book_balance == null){
+                    val.book_balance = 0;
+                }
+
+                if(val.cleared_balance == null){
+                    val.cleared_balance = 0;
+                }
+
+                var account_owner = await resolveAccountName(val.user_id).then(val => val);
+
+                sn++;
+                $("#load-all-gls").append(`
+                    <tr>
+                        <td>${sn}</td>
+                        <td>#${val.id}</td>
+                        <td>
+                            <a href="javascript:void(0);" onclick="showGlTransactions(${val.id}, '${account_owner}', '${val.description}')" class="text-uppercase">
+                                ${account_owner}
+                            </a> 
+                        </td>
+                        <td>
+                            <a href="javascript:void(0);" onclick="showGlTransactions(${val.id}, '${account_owner}', '${val.description}')" class="text-uppercase">
+                                ${val.description} <br />
+                                <span class="small text-warning">
+                                    ${val.account_type.name}
+                                </span>
+                            </a>
+                        </td>
+                        <td>&#8358; ${numeral(val.book_balance).format('0,0.00')}</td>
+                        <td>&#8358; ${numeral(val.cleared_balance).format('0,0.00')}</td>
+                    </tr>
+                `);
+            });
+
+            $("#data-table tfoot").html(``);
+            $("#data-table").append(`
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>Total</td>
+                        <td>&#8358; ${numeral(0).format('0,0.00')}</td>
+                        <td>&#8358; ${numeral(0).format('0,0.00')}</td>
+                    </tr>
+                </tfoot> 
+            `);
+
+            setTimeout((t) => {
+                formatTable('data-table');
+            }, 500 * 2);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function fetchAccountType() {
+        fetch(`http://localhost:8400/account/type`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            $.each(results, function(index, val) {
+                $("#account_type_id").append(`
+                    <option value="${val.id}"> ${val.name}</option>
+                `);
+            });
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function resolveAccountName(user_id) {
+        // body...
+        return new Promise((resolve, reject) => {
+            fetch(`${endpoint}/auth/users`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(r => {
+                return r.json();
+            }).then(results => {
+                // console.log(results);
+                $.each(results, function(index, val) {
+                    if(val.id == parseInt(user_id)){
+                        resolve(val.name);
+                    }
+                });
+            }).catch(err => {
+                console.log(err);
+            })
+
+            
+        });
+    }
+
+    function showGlTransactions(gl_id, owner, description) {
+        $(".gl-account-title").html(`${owner} - ${description}.`);
+        $("#load-transaction-history-div").html(`
+            <div class="table-responsive data-table">
+                <table class="table" id="transaction-history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Details</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="load-transaction-entry"></tbody>
+                </table>
+            </div>
+        `);
+
+        fetch(`${endpoint}/transaction/gl/${gl_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            $("#load-transaction-entry").html("");
+            var sn = 0;
+            var total_balance = 0;
+            var total_credit = 0;
+            var total_debit = 0;
+            $.each(results, function(index, val) {
+                console.log(val);
+                sn++;
+
+                var debit_amount;
+                var credit_amount;
+
+                if(val.transaction_type == 1){
+                    // debit
+                    debit_amount = `&#8358;${numeral(val.amount).format('0,0.00')}`;
+                    credit_amount = `-`;
+                    total_balance = total_balance - val.amount
+                    total_debit = total_debit + val.amount;
+                }else if(val.transaction_type == 2){
+
+                    // credit
+                    credit_amount = `&#8358;${numeral(val.amount).format('0,0.00')}`;
+                    debit_amount = `-`;
+                    total_balance = total_balance + val.amount
+                    total_credit = total_credit + val.amount;
+                }
+
+                $("#load-transaction-entry").append(`
+                    <tr>
+                        <td>${sn}</td>
+                        <td>${val.narration}</td>
+                        <td class="text-danger">${debit_amount}</td>
+                        <td class="text-success">${credit_amount}</td>
+                        <td>&#8358;${numeral(total_balance).format('0,0.00')}</td>
+                        <td>${moment(val.created_at).format('LL')} ${moment(val.created_at).format('LTS')}</td>
+                        <td>
+                            <a href="javascript:void(0);" onclick="showPostingDetails('${val.reference}', ${val.amount}, '${val.narration}')" class="btn btn-outline-primary btn-sm">
+                                Details
+                            </a>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            $("#transaction-history-table tfoot").html(``);
+            $("#transaction-history-table").append(`
+                <tfoot>
+                    <tr>
+                        <td>Total</td>
+                        <td></td>
+                        <td>&#8358;${numeral(total_debit).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(total_credit).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(total_balance).format('0,0.00')}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot> 
+            `);
+
+            setTimeout((t) => {
+                formatTable('transaction-history-table');
+            }, 1000 * 1);
+
+            $("#gl-statement-modal").modal();
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function showPostingDetails(reference_no, amount, narration) {   
+        $("#load-posting-entry-div").html(`
+            <div class="table-responsive data-table">
+                <table class="table" id="posting-history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Ledgers</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="load-posting-entry"></tbody>
+                </table>
+            </div>
+        `);
+
+
+        fetch(`${endpoint}/transaction/posting/${reference_no}?amount=${amount}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            $("#load-posting-entry").html("");
+            var sn = 0;
+            var total_balance = 0;
+            var total_credit = 0;
+            var total_debit = 0;
+            $.each(results, async function(index, val) {
+                var account_owner = await resolveAccountName(val.user_id).then(val => val);
+
+                sn++;
+                var debit_amount;
+                var credit_amount;
+
+                if(val.transaction_type == 1){
+                    // debit
+                    debit_amount = `&#8358;${numeral(val.amount).format('0,0.00')}`;
+                    credit_amount = `-`;
+                    total_balance = total_balance - val.amount
+                    total_debit = total_debit + val.amount;
+
+                }else if(val.transaction_type == 2){
+
+                    // credit
+                    credit_amount = `&#8358;${numeral(val.amount).format('0,0.00')}`;
+                    debit_amount = `-`;
+                    total_balance = total_balance + val.amount
+                    total_credit = total_credit + val.amount;
+                }
+
+                $("#load-posting-entry").append(`
+                    <tr>
+                        <td>${sn}</td>
+                        <td>${account_owner} - ${val.narration}</td>
+                        <td class="text-danger">${debit_amount}</td>
+                        <td class="text-success">${credit_amount}</td>
+                        <td>&#8358;${numeral(total_balance).format('0,0.00')}</td>
+                        <td>${moment(val.created_at).format('LL')} ${moment(val.created_at).format('LTS')}</td>
+                        <td>
+                            <a href="javascript:void(0);" class="btn btn-outline-info btn-sm" disabled>
+                                Reverse
+                            </a>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            $("#posting-history-table tfoot").html(``);
+            $("#posting-history-table").append(`
+                <tfoot>
+                    <tr>
+                        <td>Total</td>
+                        <td></td>
+                        <td class="text-danger">&#8358;${numeral(total_debit).format('0,0.00')}</td>
+                        <td class="text-success">&#8358;${numeral(total_credit).format('0,0.00')}</td>
+                        <td>&#8358;${numeral(total_balance).format('0,0.00')}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot> 
+            `);
+
+            setTimeout((t) => {
+                formatTable('posting-history-table');
+            }, 500);
+            $("#gl-posting-entry-modal").modal();
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+</script>

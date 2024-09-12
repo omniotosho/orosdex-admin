@@ -1,0 +1,90 @@
+<header class="header">
+    <div class="header__main">
+        <div id="before-search"></div>
+        
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+    <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+    <section class="content">
+        <div class="content__inner">
+            <header class="content__title">
+                <h1> {{ user.name }} <small>Saving Officer</small></h1>
+            </header>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="card-body__title">Withdraw Request</h5>
+                            
+                            <!-- <h5 class="card-body__title">Today's loan rate</h5>
+                            <div class="table-responsive data-table">
+                                <table id="data-table" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Range</th>
+                                            <th>Percentage</th>
+                                            <th>Option</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="load-all-loans-rates"></tbody>
+                                </table>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Default -->
+<div class="modal fade" id="preview-loans" tabindex="-1">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <span id="stock-title"></span>
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div id="simulation-preview-div"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var loan_scheduled;
+
+    $(document).ready(function() {
+        // loadAllLoanRates();
+        // getAllClient();
+    });
+
+    
+
+</script>

@@ -1,0 +1,358 @@
+<header class="header">
+    <div class="header__main">
+        <div id="before-search"></div>
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+    <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+    <section class="content">
+        <div class="content__inner">
+            <header class="content__title">
+                <h1> {{ user.name }} <small>Loan Officer</small></h1>
+            </header>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="card-body__title">Book Loan</h5>
+                            <form method="POST" id="loan-request-form" onsubmit="return false;" class="row">
+                                <input type="hidden" id="l_principal" name="l_principal" />
+                                <input type="hidden" id="l_interest" name="l_interest" />
+                                <input type="hidden" id="l_amount" name="l_amount" />
+                                <input type="hidden" id="l_percentage" name="l_percentage" />
+                                <input type="hidden" id="l_duration_in_days" name="l_duration_in_days" />
+                                <input type="hidden" id="l_duration_in_weeks" name="l_duration_in_weeks" />
+                                <input type="hidden" id="l_duration_in_months" name="l_duration_in_months" />
+                                <input type="hidden" id="l_daily_repayment" name="l_daily_repayment" />
+                                <input type="hidden" id="l_weekly_repayment" name="l_weekly_repayment" />
+                                <input type="hidden" id="l_monthly_repayment" name="l_monthly_repayment" />
+                                
+                                <div class="input-group mb-3 col-md-12">
+                                    <select id="customer_id" class="select2" style="width: 100%;" required="">
+                                        <option value=""> -- select customer -- </option>
+                                    </select>
+                                </div>
+
+                                <div class="input-group mb-3 col-md-12">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            &#8358;
+                                        </span>
+                                    </div>
+                                    <input type="text" onkeyup="formatVolume()" id="loan_amount" class="form-control input mask" data-mask="00000000000" placeholder="Amount..." required="">
+                                    <!-- <div class="input-group-append">
+                                        <span class="input-group-text">.00</span>
+                                    </div> -->
+                                </div>
+
+                                <div class="input-group mb-3 col-md-12">
+                                    <div class="form-control" id="preview-amount">Amount Preview</div>
+                                </div>
+
+                                <div class="input-group mb-3 col-md-12">
+                                    <label>Type of Loan</label>
+                                    <select id="repayment_type" class="select2" style="width: 100%;" required="">
+                                        <option value="1"> Fixed</option>
+                                        <option value="2"> Floating</option>
+                                    </select>
+                                </div>
+
+                                <div class="input-group mb-3 col-md-12">
+                                    <!-- <label>Loan Interest Rate</label> -->
+                                    <input type="text" id="interest_rate" class="form-control input mask" data-mask="00.00" placeholder="Interest Rate" required="">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">
+                                            %
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="input-group mb-3 col-md-6">
+                                    <label>Start Date</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="zwicon-calendar-never"></i></span>
+                                        </div>
+                                        <input type="text" id="loan_start_date" class="form-control date-picker" placeholder="Start">
+                                    </div>
+                                </div>
+
+                                <div class="input-group mb-3 col-md-6">
+                                    <label>End Date</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="zwicon-calendar-never"></i></span>
+                                        </div>
+                                        <input type="text" id="loan_end_date" class="form-control date-picker" placeholder="End" readonly="">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <hr />
+                                    <div class="row">
+                                        <div class="input-group mb-3 col-md-6">
+                                            <a href="javascript:void(0);" class="btn btn-outline-success col-md-12" onclick="simulateLoanPayment()">
+                                                Simulate
+                                            </a>
+                                        </div>
+
+                                        <div class="input-group mb-3 col-md-6">
+                                            <button class="btn btn-outline-danger col-md-12" onclick="bookCustomerLoan()">
+                                                Book Loan
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="col-md-6" id="load-history-preview">
+                            <h5 class="card-body__title">Loan's History</h5>
+                            <div class="table-responsive data-table">
+                                <table id="data-table" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Option</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="load-all-loans-rates"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" style="display:none;" id="preview-simulation">
+                            <h5 class="card-body__title">Loan's Preview</h5>
+                            <div class="table-responsive data-table" id="preview-contents"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Default -->
+<div class="modal fade" id="preview-loans" tabindex="-1">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <span id="stock-title"></span>
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div id="simulation-preview-div"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var loan_scheduled;
+
+    $(document).ready(function() {
+        // loadAllLoanRates();
+        fetchAllCustomer();
+    });
+
+    function simulateLoanPayment() {
+        $("#load-history-preview").hide();
+        $("#preview-simulation").show();
+
+        var principal       = parseFloat($("#loan_amount").val());
+        var interest_rate   = parseFloat($("#interest_rate").val());
+        var type_of_loan    = $("#type_of_loan").val();
+        var loan_start_date = moment($("#loan_start_date").val());
+        var loan_end_date   = moment($("#loan_end_date").val());
+        var duration_in_days = loan_end_date.diff(loan_start_date, 'days');
+        var duration_in_weeks = loan_end_date.diff(loan_start_date, 'weeks');
+        var duration_in_months = loan_end_date.diff(loan_start_date, 'months');
+
+        var rate = (interest_rate / 100);
+        var duration = (duration_in_days / 365);
+
+        var interest = principal * rate * duration;
+        var amount = (interest + principal);
+
+        var daily_repayment = (amount / duration_in_days)
+        var weekly_repayment = (amount / duration_in_weeks)
+        var monthly_repayment = (amount / duration_in_months)
+
+        weekly_repayment = weekly_repayment || 0;
+        monthly_repayment = monthly_repayment || 0;
+
+        $("#l_principal").val(principal);
+        $("#l_interest").val(interest);
+        $("#l_amount").val(amount);
+        $("#l_percentage").val(interest_rate);
+        $("#l_duration_in_days").val(duration_in_days);
+        $("#l_duration_in_weeks").val(duration_in_weeks);
+        $("#l_duration_in_months").val(duration_in_months);
+        $("#l_daily_repayment").val(daily_repayment);
+        $("#l_weekly_repayment").val(weekly_repayment);
+        $("#l_monthly_repayment").val(monthly_repayment);
+
+        $("#preview-contents").html(`
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td>Principal</td>
+                        <td>&#8358; ${numeral(principal).format('0,0.00')}</td>
+                    </tr>
+                    <tr>
+                        <td>Interest</td>
+                        <td>&#8358; ${numeral(interest).format('0,0.00')}</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>&#8358; ${numeral(amount).format('0,0.00')}</td>
+                    </tr>
+                    <tr>
+                        <td>Daily Duration</td>
+                        <td>${duration_in_days} day(s)</td>
+                    </tr>
+                    <tr>
+                        <td>Weekly Duration</td>
+                        <td>${duration_in_weeks} Week(s)</td>
+                    </tr>
+                    <tr>
+                        <td>Monthly Duration</td>
+                        <td>${duration_in_months} Month(s)</td>
+                    </tr>
+                    <tr>
+                        <td>Daily Repayment</td>
+                        <td>&#8358; ${numeral(daily_repayment).format('0,0.00')} Every day(s)</td>
+                    </tr>
+                    <tr>
+                        <td>Weekly Repayment</td>
+                        <td>&#8358; ${numeral(weekly_repayment).format('0,0.00')} Every Week(s)</td>
+                    </tr>
+                    <tr>
+                        <td>Monthly Repayment</td>
+                        <td>&#8358; ${numeral(monthly_repayment).format('0,0.00')} Every Month(s)</td>
+                    </tr>
+                </tbody>
+            </table>
+        `);
+    }
+
+    function bookCustomerLoan() {
+        // body...
+        var customer_id = $("#customer_id").val();
+        var principal = $("#l_principal").val();
+        var interest = $("#l_interest").val();
+        var amount = $("#l_amount").val();
+        var percentage = $("#l_percentage").val();
+        var duration_in_days = $("#l_duration_in_days").val();
+        var duration_in_weeks = $("#l_duration_in_weeks").val();
+        var duration_in_months = $("#l_duration_in_months").val();
+        var daily_repayment = $("#l_daily_repayment").val();
+        var weekly_repayment = $("#l_weekly_repayment").val();
+        var monthly_repayment = $("#l_monthly_repayment").val();
+        var type_of_loan = $("#type_of_loan").val();
+        var loan_start_date = $("#loan_start_date").val();
+        var loan_end_date = $("#loan_end_date").val();
+
+        var query = {customer_id, principal, interest, amount, percentage, duration_in_days, duration_in_weeks, duration_in_months,daily_repayment, weekly_repayment, monthly_repayment, type_of_loan, loan_start_date, loan_end_date}
+
+        // console.log(query);
+
+        fetch(`loans/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(query)
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            swal.fire(
+                results.status,
+                results.message,
+                results.status
+            );
+
+            window.location.reload();
+
+        }).catch(err => {
+            console.log(err);
+        });
+
+        // void
+        return false;
+    }
+
+    function formatAmount(element) {
+        element.value = numeral(element.value).format('0,0');
+        return element.value;
+    }
+
+    function fetchAllCustomer() {
+        fetch(`customer/all`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // body: JSON.stringify(query)
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            $("#customer_id").html("");
+            $("#customer_id").append(`
+                <option value=""> -- select customer -- </option>
+            `);
+            $.each(results, function(index, val) {
+                localStorage.setItem(`customer_${val.id}`, JSON.stringify(val));
+                $("#customer_id").append(`
+                    <option value="${val.id}">${val.full_name} </option>
+                `);
+            });
+
+            setTimeout(function(){
+                formatTable('all-customer-table');
+            }, 1000 * 3);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function setTransactionType(trans_type) {
+        // body...
+        $("#transaction_type").val(trans_type);
+    }
+
+    function formatVolume() {
+        var amount  = $("#loan_amount").val();
+        var filtered = parseFloat(amount);
+        $("#preview-amount").html(`NGN: ${numeral(filtered).format('0,0')}`);
+    }
+
+</script>

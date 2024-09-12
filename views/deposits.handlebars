@@ -1,0 +1,227 @@
+<header class="header">
+    <div class="header__main">
+        <div id="before-search"></div>
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        
+
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+    <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+    <section class="content">
+        <div class="content__inner">
+            <header class="content__title">
+                <h1> {{ user.name }} <small>Stock Broker</small></h1>
+            </header>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-body__title">Deposit</h5>
+                    <hr />
+                    <button type="button" class="btn btn-theme mr-5" onclick="showDepositModal(1)">Card</button>
+
+                    <button type="button" class="btn btn-theme mr-5" onclick="showDepositModal(2)" disabled="">
+                        <i class="fa fa-lock"></i> Bank Transfer
+                    </button>
+
+                    <button type="button" class="btn btn-theme mr-5" onclick="showDepositModal(3)" disabled="">
+                        <i class="fa fa-lock"></i> USSD
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-body__title">Deposit History</h5>
+
+                    <div class="table-responsive data-table">
+                        <table id="data-table" class="table">
+                            <thead>
+                                <tr>
+                                    <th>SN</th>
+                                    <th>Amount</th>
+                                    <th>Reference ID</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="load-all-deposit-history"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Default -->
+<div class="modal fade" id="card-deposit-modal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Amount</h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST" onsubmit="return postCardDeposit();" class="row">
+                    <div class="input-group mb-3 col-md-12">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">&#8358;</span>
+                        </div>
+                        <input type="text" onkeyup="formatAmount()" id="deposit-amount" class="form-control input mask" data-mask="00000000000" placeholder="Enter amount" required="">
+                        <div class="input-group-append">
+                            <span class="input-group-text">.00</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group mb-3 col-md-12">
+                        <div class="form-control" id="preview-amount"></div>
+                    </div>
+
+                    <div class="input-group mb-3 col-md-12">
+                        <button class="btn btn-outline-success col-md-12">
+                            Pay
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        getUserTransaction();
+    });
+
+    function formatTable() {
+        if($("#data-table")[0]) {
+            $("#data-table").DataTable({
+                autoWidth:!1, responsive:!0, lengthMenu:[[15, 30, 45, -1], ["15 Rows", "30 Rows", "45 Rows", "Everything"]], language: {
+                    searchPlaceholder: "Search for records..."
+                }
+                , sDom:'<"dataTables__top"flB<"dataTables_actions">>rt<"dataTables__bottom"ip><"clear">', buttons:[ {
+                    extend: "excelHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "csvHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "print", title: "Material Admin"
+                }
+                ], initComplete:function() {
+                    $(".dataTables_actions").html('<i class="zwicon-more-h" data-toggle="dropdown" /><div class="dropdown-menu dropdown-menu-right"><a href="" data-table-action="print" class="dropdown-item">Print</a><a href="" data-table-action="fullscreen" class="dropdown-item">Fullscreen</a><div class="dropdown-divider" /><div class="dropdown-header border-bottom-0 pb-0">Download as:</div><a href="" data-table-action="excel" class="dropdown-item">Excel (.xlsx)</a><a href="" data-table-action="csv" class="dropdown-item">CSV (.csv)</a></div>')
+                }
+            }
+            ), $("body").on("click", "[data-table-action]", function(e) {
+                e.preventDefault();
+                var t=$(this).data("table-action");
+                if("excel"===t&&$("#data-table_wrapper").find(".buttons-excel").click(), "csv"===t&&$("#data-table_wrapper").find(".buttons-csv").click(), "print"===t&&$("#data-table_wrapper").find(".buttons-print").click(), "fullscreen"===t) {
+                    var a=$(this).closest(".card");
+                    a.hasClass("card--fullscreen")?(a.removeClass("card--fullscreen"), $body.removeClass("data-table-toggled")): (a.addClass("card--fullscreen"), $body.addClass("data-table-toggled"))
+                }
+            })
+        }
+    }
+
+    function showDepositModal() {
+        $("#card-deposit-modal").modal();
+    }
+
+    function formatAmount() {
+        var amount  = $("#deposit-amount").val();
+        var filtered = parseFloat(amount);
+        $("#preview-amount").html(`NGN: ${numeral(filtered).format('0,0.00')}`);
+    }
+
+    function postCardDeposit() {
+        var amount          = $("#deposit-amount").val();
+        var user_id         = $("#user_id").val();
+        var account_type_id = 1;
+        var narration       = "Online instant deposit";
+
+        var query = {amount, user_id, account_type_id, narration}
+
+        fetch(`${endpoint}/transaction`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(query)
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            swal.fire(
+                results.status,
+                results.message,
+                results.status,
+            );
+
+            if(results.status == "success"){
+                $("#card-deposit-modal").modal('hide');
+                getUserTransaction();
+                getAccountBalance();
+            }
+        }).catch(err => {
+            console.log(err);
+        })
+
+        // return void
+        return false;
+    }
+
+    function getUserTransaction() {
+        var user_id = $("#user_id").val();
+
+        fetch(`${endpoint}/transaction/${user_id}/1`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results)
+            $("#load-all-deposit-history").html("");
+            var sn = 0;
+            $.each(results, function(index, val) {
+                console.log(val);
+                sn++;
+                $("#load-all-deposit-history").append(`
+                    <tr>
+                        <td>${sn}</td>
+                        <td>&#8358;${numeral(val.amount).format('0,0.00')}</td>
+                        <td>#${val.reference}</td>
+                        <td>${moment(val.created_at).format('LL')}</td>
+                        <td><i class="fa fa-arrow-down text-success"></i> Deposit</td>
+                    <tr>
+                `);
+            });
+
+            // format table
+            // formatTable();
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+</script>

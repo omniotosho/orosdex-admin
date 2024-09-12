@@ -1,0 +1,609 @@
+<header class="header">
+    <div class="header__main">
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        
+
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+    <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+    <section class="content">
+        <div class="content__inner">
+            <header class="content__title">
+                <h1>Settings</h1>
+            </header>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Profile Update
+
+                        <span class="float-right">
+                            <p class="text-success">Tier I</p>
+                        </span>
+                    </h4>
+                    <form class="row" method="POST" onsubmit="return updateUserProfile()">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="name" class="form-control" placeholder="Full name" value="{{user.name}}" readonly="">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email address</label>
+                                <input type="email" class="form-control" placeholder="name@example.com" value="{{user.email}}" readonly="">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" class="select2" style="width: 100%;" required="">
+                                    <option value=""> -- select gender -- </option>
+                                    <option value="1">Male</option>
+                                    <option value="2">Female</option>
+                                    <option value="3">Others</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="date_of_birth">Date of Birth</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="zwicon-calendar-never"></i></span>
+                                    </div>
+                                    <input type="text" id="date_of_birth" class="form-control date-picker" placeholder="Pick a date & time" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Mobile Number</label>
+                                <input type="tel" id="phone" class="form-control input-mask" data-mask="00000000000" placeholder="eg: 08000000000" required="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="bvn">BVN</label>
+                                <input type="text" id="bvn" class="form-control input-mask" data-mask="0000000000" placeholder="eg: 0000000000" required="">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="state_of_origin">State of Origin</label>
+                                <select class="select2" id="state_of_origin" style="width: 100%;" onchange="showLocalGovt()" required="">
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lga">Local Govt.</label>
+                                <select id="lga" class="select2" style="width: 100%;" required="">
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nationality">Nationality</label>
+                                <select id="nationality" class="select2" style="width: 100%;" required="">
+                                    <option value="1" selected="">Nigeria (NG)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="occupation">Occupation</label>
+                                <select id="occupation" class="select2" style="width: 100%;" required="">
+                                    <option value=""> -- select occupation -- </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" placeholder="Tell us about yourself." required=""></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="address">Address</label>
+                                <textarea class="form-control" id="address" placeholder="Eg. 12 avenue festac" required=""></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button class="btn btn-primary">Update Profile</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Bank Screen Setup -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Setup Bank</h4>
+                    <form class="row" method="POST" onsubmit="return updateUserBank();">
+                        <input type="hidden" id="sort_code" name="">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="account_number">Account Number</label>
+                                <input type="text" id="account_number" class="form-control input-mask" data-mask="0000000000" placeholder="Eg, 000111333" required="">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bank_id">Select Bank</label>
+                                <select id="bank_id" onchange="showOwnerBank()" class="select2" style="width: 100%;" required=""></select>
+                            </div>
+
+                            <div class="form-group" id="owner_name_div" style="display: none;">
+                                <label for="owner_name">Owner Name</label>
+                                <input type="text" id="owner_name" class="form-control" placeholder="Eg, John Doe">
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Update Bank
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <p>Details</p>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td>Account Owner Name</td>
+                                        <td><span id="updated_owner_name"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bank Name</td>
+                                        <td><span id="updated_bank_name"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Account Number</td>
+                                        <td><span id="updated_bank_number"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lock Screen Section -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Lock Screen Settings</h4>
+                    <h6 class="card-subtitle">Enable lock screen, application will auto lock when idle.</h6>
+
+                    <div class="form-group">
+                        <div class="toggle-switch">
+                            <input type="checkbox" class="toggle-switch__checkbox">
+                            <i class="toggle-switch__helper"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction PIN Section -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Transaction Pin</h4>
+                    <h6 class="card-subtitle">Authenticate every transaction</h6>
+
+                    <form class="row" method="POST" onsubmit="return updateTransactionPin();">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="enter_pin">Enter PIN</label>
+                                <input type="text" id="enter_pin" class="form-control input-marsk" data-marsk="0000" placeholder="****">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm_pin">Confirm PIN</label>
+                                <input type="number" id="confirm_pin" class="form-control input-marsk" data-marsk="0000" placeholder="****">
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Update PIN
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change password Section -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Reset Account Password</h4>
+                    <h6 class="card-subtitle">Transaction account password</h6>
+
+
+                    <form class="row" method="POST" onsubmit="return updateAccountPassword();">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="old_password">Old password</label>
+                                <input type="password" id="old_password" class="form-control input-marsk" data-marsk="0000" placeholder="****">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="new_password">Enter new password</label>
+                                <input type="password" id="new_password" class="form-control" placeholder="****">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm_new_password">Confirm password</label>
+                                <input type="password" id="confirm_new_password" class="form-control" placeholder="****">
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Reset Password
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script type="text/javascript">
+    // load profile information
+    $(document).ready(function($) {
+        getProfileInformation();
+        getAllBanks();
+        fetchLocation();
+        fetchOccupation();
+        fetchCountry();
+        getBasicUserInformation();
+        fetchUserBank();
+    });
+
+    function updateTransactionPin() {
+        
+        // void
+        return false;
+    }
+
+    function showOwnerBank() {
+        $("#owner_name_div").show();
+    }
+
+    function updateAccountPassword() {
+        var user_id = $("#user_id").val();
+        var old_password = $("#old_password").val();
+        var new_password = $("#new_password").val();
+        var confirm_password = $("#confirm_new_password").val();
+
+        if(new_password !== confirm_password){
+            swal.fire(
+                "error",
+                "Passwords did not match!",
+                "error",
+            );
+            return false;
+        }else{
+            var query = {old_password, new_password}
+
+            // console.log(query);
+            fetch(`profile/password/${user_id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(query)
+            }).then(r => {
+                return r.json();
+            }).then(results => {
+                swal.fire(
+                    results.status,
+                    results.message,
+                    results.status,
+                );
+
+                if(results.status == "success"){
+                    window.location.href = '/logout';
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+
+        // void
+        return false;
+    }
+
+    function fetchUserBank() {
+        var user_id = $("#user_id").val();
+        fetch(`profile/bank/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            console.log(results);
+            $("#updated_owner_name").html(results.owner_name);
+            $("#updated_bank_name").html(results.bank_name);
+            $("#updated_bank_number").html(results.number);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function updateUserBank() {
+        var user_id     = $("#user_id").val();
+        var owner_name  = $("#owner_name").val();
+        var sort_code   = $("#bank_id").val();
+        var number      = $("#account_number").val();
+        resolveBankNameBySortCode(sort_code).then(bank_name => {
+            var query = {owner_name, sort_code, number, bank_name}
+            // console.log(query);
+            fetch(`profile/bank/${user_id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(query)
+            }).then(r => {
+                return r.json();
+            }).then(results => {
+                console.log(results);
+                swal.fire(
+                    results.status,
+                    results.message,
+                    results.status,
+                );
+                fetchUserBank();
+            }).catch(err => {
+                console.log(err);
+            });
+        });
+
+        // void
+        return false;
+    }
+
+    function getBasicUserInformation() {
+        var user_id = $("#user_id").val();
+        fetch(`profile/basic/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results)
+            // document.getElementById('mini_avatar').src = results.avatar;
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function fetchOccupation() {
+        // console.log(results)
+        $("#occupation").html('');
+        $("#occupation").append(`
+            <option value="">-- select occupation --</option>
+        `);
+        $.each(occupations_collections, function(index, val) {
+            // iterate through array or object 
+            $("#occupation").append(`
+                <option value="${val.id}">${val.name}</option>
+            `);
+        });
+        $("#occupation").select2();
+    }
+
+    function fetchLocation() {
+        $("#state_of_origin").html('');
+        $("#state_of_origin").append(`
+            <option value="">-- select state --</option>
+        `);
+        $.each(location_collections, function(index, val) {
+            // iterate through array or object 
+            $("#state_of_origin").append(`
+                <option value="${val.id}">${val.name}</option>
+            `);
+        });
+
+        $("#state_of_origin").select2();
+    }
+
+    function showLocalGovt() {
+        var state_of_origin = $("#state_of_origin").val();
+        $.each(location_collections, function(index, val) {
+            if(state_of_origin == val.id){
+                $("#lga").html("");
+                $("#lga").append(`
+                    <option value="">-- select lga --</option>
+                `);
+                $.each(val.lga, function(index, val){
+                    $("#lga").append(`
+                        <option value="${index}">${val}</option>
+                    `);
+                });
+                $("#lga").select2();
+            }
+        });
+    }
+
+    function fetchCountry(){
+        // console.log(results);
+        $("#nationality").html("");
+        $("#nationality").append(`
+            <option value="">-- select nationality --</option>
+        `);
+        $.each(country_collections, function(index, val) {
+            $("#nationality").append(`
+                <option value="${val.id}">${val.name}</option>
+            `);
+        });
+    }
+
+    function getProfileInformation() {
+        var user_id = $("#user_id").val();
+        fetch(`profile/user/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            $("#occupation").val(results.occupation);
+            $("#description").val(results.description);
+            $("#gender").val(results.gender);
+            $("#phone").val(results.phone);
+            $("#bvn").val(results.bvn);
+            $("#state_of_origin").val(results.state_of_origin);
+            $("#lga").val(results.lga);
+            $("#address").val(results.address);
+            $("#date_of_birth").val(results.date_of_birth);
+            $("#user_id").val(results.user_id);
+            $("#nationality").val(results.nationality);
+            $("#user_id").val(results.user_id);
+
+            $("#gender").trigger('change');
+            $("#state_of_origin").trigger('change');
+            $("#occupation").trigger('change');
+            $("#nationality").trigger('change');
+
+            // later changes
+            setTimeout((t) => {
+                resolveOccupationName(results.occupation);
+                resolveLgaName(results.state_of_origin, results.lga);
+            }, 1000 * 2);
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function getAllBanks() {
+        $("#bank_id").html("")
+        $("#bank_id").append(`
+            <option value=""> -- select bank -- </option>
+        `);
+        $.each(banks_collections.data, function(index, val) {
+            $("#bank_id").append(`
+                <option value="${val.code}">${val.name}</option>
+            `);
+        });
+
+        $("#bank_id").select2();
+    }
+
+    function updateUserProfile() {
+        var occupation      = $("#occupation").val();
+        var description     = $("#description").val();
+        var gender          = $("#gender").val();
+        var phone           = $("#phone").val();
+        var bvn             = $("#bvn").val();
+        var state_of_origin = $("#state_of_origin").val();
+        var lga             = $("#lga").val();
+        var address         = $("#address").val();
+        var date_of_birth   = $("#date_of_birth").val();
+        var user_id         = $("#user_id").val();
+        var nationality     = $("#nationality").val();
+        var user_id         = $("#user_id").val();
+
+        var query = {user_id, occupation, description, gender, nationality, phone, bvn, state_of_origin, lga, address, date_of_birth}
+
+        fetch(`profile`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(query)
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            console.log(results);
+            getProfileInformation();
+            swal.fire(
+                results.status,
+                results.message,
+                results.status,
+            );
+        }).catch(err => {
+            console.log(err);
+        });
+
+        // void
+        return false;
+    }
+
+    function resolveOccupationName(occupation_id) {
+        // console.log(results);
+        $.each(occupations_collections, function(index, val) {
+            // iterate through array or object 
+            if(val.id == occupation_id){
+                $("#occupation").append(`
+                    <option value="${val.id}" selected="">${val.name}</option>
+                `);
+            }else{
+                $("#occupation").append(`
+                    <option value="${val.id}">${val.name}</option>
+                `);
+            }
+        });
+    }
+
+    function resolveLgaName(state_of_origin_id, lga_id) {
+        $.each(location_collections, function(index, val) {
+            if(state_of_origin_id == val.id){
+                $("#lga").html("");
+                $("#lga").append(`
+                    <option value="">-- select lga --</option>
+                `);
+                $.each(val.lga, function(index, val){
+                    if(index == lga_id){
+                        $("#lga").append(`
+                            <option value="${index}" selected>${val}</option>
+                        `);
+                    }else{
+                        $("#lga").append(`
+                            <option value="${index}">${val}</option>
+                        `);
+                    }
+                });
+            }
+        });
+    }
+
+    function resolveBankNameBySortCode(sort_code) {
+        // body...
+        return new Promise((resolve, reject) => {
+            $.each(banks_collections.data, function(index, val) {
+                if(sort_code == val.code){
+                    resolve(val.name);
+                }
+            });
+
+            // reject no code found
+            reject(null);
+        });
+    }
+</script>

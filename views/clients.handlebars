@@ -1,0 +1,1105 @@
+<header class="header">
+    <div class="header__main">
+        <div id="before-search"></div>
+        
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+    <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+    <section class="content">
+        <div class="content__inner">
+            <header class="content__title">
+                <h1> {{ user.name }} <small>Account Officer</small></h1>
+            </header>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="card-body__title">
+                                All clients
+
+
+                                <span class="float-right">
+                                    <a href="javascript:void(0);" onclick="showAddNewCustomer();" class="btn btn-outline-primary ">
+                                        <i class="fa fa-user"></i> New
+                                    </a>
+
+                                    <a href="javascript:void(0);" onclick="showUploadCustomersData();" class="btn btn-outline-primary ">
+                                       <i class="fa fa-upload"></i> Upload Customer
+                                    </a>
+
+                                    <a href="javascript:void(0);" onclick="downloadCustomerTemplate();" class="btn btn-outline-primary ">
+                                       <i class="fa fa-download"></i> Template
+                                    </a>
+                                </span>
+                            </h5>
+                            <br />
+                            <div class="table-responsive data-table">
+                                <table id="all-customer-table" class="table small">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Names</th>
+                                            <th>Phone</th>
+                                            <th>Account Code</th>
+                                            <th>Loan Balance</th>
+                                            <th>Savings Balance</th>
+                                            <th>Option</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="load-all-clients-account"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Default -->
+<div class="modal fade" id="show-add-new-customer" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    New Customer
+                </h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST" onsubmit="return false;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="img/avatar.png" id="preivew-image" onclick="triggerImageSelection()" width="124px" height="124px;" class="passport-preview">
+                            <input type="file" accept="image/*" name="passport" id="passport" onchange="pushToFilesBox(this)" style="opacity: 0;">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="acct_code">Account Code</label>
+                                <input type="text" class="form-control" id="acct_code" data-mask="0000000000" placeholder="Eg. 0344" name="acct_code" required="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="name" class="form-control" id="name" placeholder="Full name" value="" required="">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email address</label>
+                                <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" class="select2" style="width: 100%;" required="">
+                                    <option value=""> -- select gender -- </option>
+                                    <option value="1">Male</option>
+                                    <option value="2">Female</option>
+                                    <option value="3">Others</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="date_of_birth">Date of Birth</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="zwicon-calendar-never"></i></span>
+                                    </div>
+                                    <input type="text" id="date_of_birth" class="form-control date-picker" placeholder="Pick a date & time" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Mobile Number</label>
+                                <input type="tel" id="phone" class="form-control input-mask" data-mask="00000000000" placeholder="eg: 08000000000" required="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="bvn">BVN</label>
+                                <input type="text" id="bvn" class="form-control input-mask" data-mask="0000000000" placeholder="eg: 0000000000">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="state_of_origin">State of Origin</label>
+                                <select class="select2" id="state_of_origin" style="width: 100%;" onchange="showLocalGovt()" required="">
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lga">Local Govt.</label>
+                                <select id="lga" class="select2" style="width: 100%;" required="">
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nationality">Nationality</label>
+                                <select id="nationality" class="select2" style="width: 100%;" required="">
+                                    <option value="1" selected="">Nigeria (NG)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="occupation">Occupation</label>
+                                <select id="occupation" class="select2" style="width: 100%;" required="">
+                                    <option value=""> -- select occupation -- </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" placeholder="Tell us about yourself." required=""></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="home_address">Home Address</label>
+                                <textarea class="form-control" id="home_address" placeholder="Eg. 12 avenue festac" required=""></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="business_address">Bussiness Address</label>
+                                <textarea class="form-control" id="business_address" placeholder="Eg. 12 plaza alaba" required=""></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="addCustomer()">Save Customer</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SHOW CUSTOMER EDIT INFO -->
+<div class="modal fade" id="show-edit-customer-info" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    New Customer
+                </h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST" onsubmit="return false;">
+                    <input type="hidden" id="edit_customer_id" name="">
+                    <input type="hidden" id="edit_passport_url" name="">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="img/avatar.png" id="edit-preivew-image" onclick="triggerImageSelection()" width="124px" height="124px;" class="passport-preview">
+                            <input type="file" accept="image/*" name="passport" id="edit_passport" onchange="pushToFilesBox(this)" style="opacity: 0;">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_acct_code">Account Code</label>
+                                <input type="text" class="form-control" id="edit_acct_code" data-mask="0000000000" placeholder="Eg. 0344" name="edit_acct_code" required="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_name">Full Name</label>
+                                <input type="name" class="form-control" id="edit_name" placeholder="Full name" value="" required="">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_email">Email address</label>
+                                <input type="email" class="form-control" id="edit_email" placeholder="name@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_gender">Gender</label>
+                                <select id="edit_gender" class="select2" style="width: 100%;" required="">
+                                    <option value=""> -- select gender -- </option>
+                                    <option value="1">Male</option>
+                                    <option value="2">Female</option>
+                                    <option value="3">Others</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_date_of_birth">Date of Birth</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="zwicon-calendar-never"></i></span>
+                                    </div>
+                                    <input type="text" id="edit_date_of_birth" class="form-control date-picker" placeholder="Pick a date & time" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_phone">Mobile Number</label>
+                                <input type="tel" id="edit_phone" class="form-control input-mask" data-mask="00000000000" placeholder="eg: 08000000000" readonly="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_bvn">BVN</label>
+                                <input type="text" id="edit_bvn" class="form-control input-mask" data-mask="0000000000" placeholder="eg: 0000000000">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_state_of_origin">State of Origin</label>
+                                <select class="select2" id="edit_state_of_origin" style="width: 100%;" onchange="showEditLocalGovt()" required="">
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_lga">Local Govt.</label>
+                                <select id="edit_lga" class="select2" style="width: 100%;" required="">
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_nationality">Nationality</label>
+                                <select id="edit_nationality" class="select2" style="width: 100%;" required="">
+                                    <option value="1" selected="">Nigeria (NG)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_occupation">Occupation</label>
+                                <select id="edit_occupation" class="select2" style="width: 100%;" required="">
+                                    <option value=""> -- select occupation -- </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="edit_description">Description</label>
+                                <textarea class="form-control" id="edit_description" placeholder="Tell us about yourself." required=""></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="edit_home_address">Home Address</label>
+                                <textarea class="form-control" id="edit_home_address" placeholder="Eg. 12 avenue festac" required=""></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="edit_business_address">Bussiness Address</label>
+                                <textarea class="form-control" id="edit_business_address" placeholder="Eg. 12 plaza alaba" required=""></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="updateCustomerDetails()">Update Customer</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SHOW CUSTOMER INFO -->
+<div class="modal fade" id="show-customer-details" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Customer Details
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div id="preview-customer-details"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SHOW UPLOAD CUSTOMER -->
+<div class="modal fade" id="show-upload-customers" tabindex="-1">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Upload Customer's Lists
+                </h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST" onsubmit="return false;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="custom-file">
+                                <input type="file" accept=".csv" class="custom-file-input" id="customFile" onchange="pushToExcelFileBox(this)">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="submit" onclick="uploadCustomerFiles()" class="btn btn-outline-primary">Upload</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var loan_scheduled;
+
+    $(document).ready(function() {
+        getAllBanks();
+        fetchLocation();
+        fetchOccupation();
+        fetchCountry();
+        fetchAllCustomer();
+        // getBasicUserInformation();
+        // fetchUserBank();
+    });
+
+    function formatTable(table_id) {
+        if($(`#${table_id}`)[0]) {
+            $(`#${table_id}`).DataTable({
+                autoWidth:!1, responsive:!0, lengthMenu:[[5, 10, 15, -1], ["5 Rows", "10 Rows", "15 Rows", "Everything"]], language: {
+                    searchPlaceholder: "Search for records..."
+                }
+                , sDom:'<"dataTables__top"flB<"dataTables_actions">>rt<"dataTables__bottom"ip><"clear">', buttons:[ {
+                    extend: "excelHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "csvHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "print", title: "Material Admin"
+                }
+                ], initComplete:function() {
+                    $(".dataTables_actions").html('<i class="zwicon-more-h" data-toggle="dropdown" /><div class="dropdown-menu dropdown-menu-right"><a href="" data-table-action="print" class="dropdown-item">Print</a><a href="" data-table-action="fullscreen" class="dropdown-item">Fullscreen</a><div class="dropdown-divider" /><div class="dropdown-header border-bottom-0 pb-0">Download as:</div><a href="" data-table-action="excel" class="dropdown-item">Excel (.xlsx)</a><a href="" data-table-action="csv" class="dropdown-item">CSV (.csv)</a></div>')
+                }
+            }
+            ), $("body").on("click", "[data-table-action]", function(e) {
+                e.preventDefault();
+                var t=$(this).data("table-action");
+                if("excel"===t&&$("#data-table_wrapper").find(".buttons-excel").click(), "csv"===t&&$("#data-table_wrapper").find(".buttons-csv").click(), "print"===t&&$("#data-table_wrapper").find(".buttons-print").click(), "fullscreen"===t) {
+                    var a=$(this).closest(".card");
+                    a.hasClass("card--fullscreen")?(a.removeClass("card--fullscreen"), $body.removeClass("data-table-toggled")): (a.addClass("card--fullscreen"), $body.addClass("data-table-toggled"))
+                }
+            })
+        }
+    }
+
+    function getBasicUserInformation() {
+        var user_id = $("#user_id").val();
+        fetch(`profile/basic/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            console.log(results)
+            // document.getElementById('mini_avatar').src = results.avatar;
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function showAddNewCustomer() {
+        $("#show-add-new-customer").modal();
+    }
+
+    function showUploadCustomersData() {
+        $("#show-upload-customers").modal();
+    }
+
+    function downloadCustomerTemplate() {
+        window.location.href = "/customer-template.csv";
+    }
+
+    function getAllBanks() {
+        $("#bank_id").html("")
+        $("#bank_id").append(`
+            <option value=""> -- select bank -- </option>
+        `);
+        $.each(banks_collections.data, function(index, val) {
+            $("#bank_id").append(`
+                <option value="${val.code}">${val.name}</option>
+            `);
+        });
+
+        $("#bank_id").select2();
+    }
+
+    function resolveOccupationName(occupation_id) {
+        // console.log(results);
+        $.each(occupations_collections, function(index, val) {
+            // iterate through array or object 
+            if(val.id == occupation_id){
+                $("#occupation").append(`
+                    <option value="${val.id}" selected="">${val.name}</option>
+                `);
+                $("#edit_occupation").append(`
+                    <option value="${val.id}" selected="">${val.name}</option>
+                `);
+            }else{
+                $("#edit_occupation").append(`
+                    <option value="${val.id}">${val.name}</option>
+                `);
+                $("#occupation").append(`
+                    <option value="${val.id}">${val.name}</option>
+                `);
+            }
+        });
+    }
+
+    function resolveLgaName(state_of_origin_id, lga_id) {
+        $.each(location_collections, function(index, val) {
+            if(state_of_origin_id == val.id){
+                $("#lga").html("");
+                $("#lga").append(`
+                    <option value="">-- select lga --</option>
+                `);
+                $.each(val.lga, function(index, val){
+                    if(index == lga_id){
+                        $("#lga").append(`
+                            <option value="${index}" selected>${val}</option>
+                        `);
+                    }else{
+                        $("#lga").append(`
+                            <option value="${index}">${val}</option>
+                        `);
+                    }
+                });
+            }
+        });
+    }
+
+    function resolveBankNameBySortCode(sort_code) {
+        // body...
+        return new Promise((resolve, reject) => {
+            $.each(banks_collections.data, function(index, val) {
+                if(sort_code == val.code){
+                    resolve(val.name);
+                }
+            });
+
+            // reject no code found
+            reject(null);
+        });
+    }
+
+    function fetchOccupation() {
+        // console.log(results)
+        $("#occupation").html('');
+        $("#edit_occupation").html('');
+        $("#occupation").append(`
+            <option value="">-- select occupation --</option>
+        `);
+        $("#edit_occupation").append(`
+            <option value="">-- select occupation --</option>
+        `);
+        $.each(occupations_collections, function(index, val) {
+            // iterate through array or object 
+            $("#occupation").append(`
+                <option value="${val.id}">${val.name}</option>
+            `);
+            $("#edit_occupation").append(`
+                <option value="${val.id}">${val.name}</option>
+            `);
+        });
+        $("#occupation").select2();
+        $("#edit_occupation").select2();
+    }
+
+    function fetchLocation() {
+        $("#state_of_origin").html('');
+        $("#state_of_origin").append(`
+            <option value="">-- select state --</option>
+        `);
+        $("#edit_state_of_origin").html('');
+        $("#edit_state_of_origin").append(`
+            <option value="">-- select state --</option>
+        `);
+        $.each(location_collections, function(index, val) {
+            // iterate through array or object 
+            $("#state_of_origin").append(`
+                <option value="${val.id}">${val.name}</option>
+            `);
+
+            $("#edit_state_of_origin").append(`
+                <option value="${val.id}">${val.name}</option>
+            `);
+        });
+
+        $("#edit_state_of_origin").select2();
+        $("#state_of_origin").select2();
+    }
+
+    function showLocalGovt() {
+        var state_of_origin = $("#state_of_origin").val();
+        $.each(location_collections, function(index, val) {
+            if(state_of_origin == val.id){
+                $("#lga").html("");
+                $("#lga").append(`
+                    <option value="">-- select lga --</option>
+                `);
+                $.each(val.lga, function(index, val){
+                    $("#lga").append(`
+                        <option value="${index}">${val}</option>
+                    `);
+                });
+                $("#lga").select2();
+            }
+        });
+    }
+
+    function showEditLocalGovt() {
+        var edit_state_of_origin = $("#edit_state_of_origin").val();
+        $.each(location_collections, function(index, val) {
+            if(edit_state_of_origin == val.id){
+                $("#edit_lga").html("");
+                $("#edit_lga").append(`
+                    <option value="">-- select lga --</option>
+                `);
+                $.each(val.lga, function(index, val){
+                    $("#edit_lga").append(`
+                        <option value="${index}">${val}</option>
+                    `);
+                });
+                $("#edit_lga").select2();
+            }
+        });
+    }
+
+    function fetchCountry(){
+        // console.log(results);
+        $("#nationality").html("");
+        $("#nationality").append(`
+            <option value="">-- select nationality --</option>
+        `);
+        $.each(country_collections, function(index, val) {
+            $("#nationality").append(`
+                <option value="${val.id}">${val.name}</option>
+            `);
+        });
+    }
+
+    function triggerImageSelection() {
+        $("#passport").trigger('click');
+    }
+
+    var media_files_box = [];
+    var raw_media_files_box = [];
+    var raw_excel_files_box = [];
+    var media_files_converted = [];
+
+    function pushToFilesBox(element) {
+        var preview_element = $("#preivew-image");
+        var edit_preview_element = $("#edit-preivew-image");
+        $.each(element.files, function(index, val) {
+            raw_media_files_box.push(val);
+
+            /* iterate through array or object */
+            var file = element.files[index];
+            var reader  = new FileReader();
+
+            reader.onloadend = async function (e) {
+                preview_element.attr('src', reader.result);
+                edit_preview_element.attr('src', reader.result);
+                media_files_box.push({filename: reader.result, filetype: 1});
+            }
+
+            if (file) {
+                //reads the data as a URL
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    function pushToExcelFileBox(element) {
+        // body...
+        $.each(element.files, function(index, val) {
+            raw_excel_files_box.push(val);
+
+            /* iterate through array or object */
+            var file = element.files[index];
+            var reader  = new FileReader();
+
+            reader.onloadend = async function (e) {
+                // media_files_box.push({filename: reader.result, filetype: 1});
+            }
+
+            if (file) {
+                //reads the data as a URL
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    function uploadCustomerFiles() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "uploads/excel/files");
+        xhr.upload.addEventListener("progress", function(e){
+            var percent = e.lengthComputable ? (e.loaded / e.total) * 100 : 0;
+            // progress_bar_fill.css("width", percent.toFixed(2) + "%");
+            // progress_bar_text.html('');
+        });
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                let results = JSON.parse(xhr.responseText);
+                console.log(results);
+            }
+        }
+
+        var form_data = new FormData();
+        form_data.append(`media`, raw_excel_files_box[0], raw_excel_files_box[0].name);
+        xhr.send(form_data);
+
+        // void
+        return false;
+    }
+
+    function addCustomer() {
+        var full_name = $("#name").val();
+        var acct_code = $("#acct_code").val();
+        var bvn = $("#bvn").val();
+        var email = $("#email").val();
+        var state_of_origin = $("#state_of_origin").val();
+        var gender = $("#gender").val();
+        var local_govt = $("#lga").val();
+        var date_of_birth = $("#date_of_birth").val();
+        var nationality = $("#nationality").val();
+        var phone_number = $("#phone").val();
+        var occupation = $("#occupation").val();
+        var description = $("#description").val();
+        var home_address = $("#home_address").val();
+        var business_address = $("#business_address").val();
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "customer");
+        xhr.upload.addEventListener("progress", function(e){
+            var percent = e.lengthComputable ? (e.loaded / e.total) * 100 : 0;
+            // progress_bar_fill.css("width", percent.toFixed(2) + "%");
+            // progress_bar_text.html('');
+        });
+
+        // xhr.setRequestHeader("Content-Type","multipart/form-data");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                let results = JSON.parse(xhr.responseText);
+                // console.log(results);
+
+                if(results.status == "success"){
+                    swal.fire(
+                        results.status,
+                        results.message,
+                        results.status
+                    );
+                    window.location.reload();
+                }else{
+                    swal.fire(
+                        results.status,
+                        results.message,
+                        results.status
+                    );
+                }
+            }
+        }
+
+        var form_data = new FormData();
+        // form_data.append(`media`, raw_media_files_box[0], raw_media_files_box[0].name);
+        if(raw_media_files_box.length > 0){
+            form_data.append(`media`, raw_media_files_box[0], raw_media_files_box[0].name);
+        }
+        form_data.append('full_name', full_name);
+        form_data.append('acct_code', acct_code);
+        form_data.append('bvn', bvn);
+        form_data.append('email', email);
+        form_data.append('state_of_origin', state_of_origin);
+        form_data.append('gender', gender);
+        form_data.append('local_govt', local_govt);
+        form_data.append('date_of_birth', date_of_birth);
+        form_data.append('nationality', nationality);
+        form_data.append('phone_number', phone_number);
+        form_data.append('occupation', occupation);
+        form_data.append('description', description);
+        form_data.append('home_address', home_address);
+        form_data.append('business_address', business_address);
+        xhr.send(form_data);
+
+        // void
+        return false;
+    }
+
+    function updateCustomerDetails() {
+        var id = $("#edit_customer_id").val();
+        var passport = $("#edit_passport_url").val();
+        var full_name = $("#edit_name").val();
+        var acct_code = $("#edit_acct_code").val();
+        var bvn = $("#edit_bvn").val();
+        var email = $("#edit_email").val();
+        var state_of_origin = $("#edit_state_of_origin").val();
+        var gender = $("#edit_gender").val();
+        var local_govt = $("#edit_lga").val();
+        var date_of_birth = $("#edit_date_of_birth").val();
+        var nationality = $("#edit_nationality").val();
+        var phone_number = $("#edit_phone").val();
+        var occupation = $("#edit_occupation").val();
+        var description = $("#edit_description").val();
+        var home_address = $("#edit_home_address").val();
+        var business_address = $("#edit_business_address").val();
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `customer/update`);
+        xhr.upload.addEventListener("progress", function(e){
+            var percent = e.lengthComputable ? (e.loaded / e.total) * 100 : 0;
+            // progress_bar_fill.css("width", percent.toFixed(2) + "%");
+            // progress_bar_text.html('');
+        });
+
+        // xhr.setRequestHeader("Content-Type","multipart/form-data");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                let results = JSON.parse(xhr.responseText);
+                // console.log(results);
+
+                if(results.status == "success"){
+                    swal.fire(
+                        results.status,
+                        results.message,
+                        results.status
+                    );
+                    window.location.reload();
+                }else{
+                    swal.fire(
+                        results.status,
+                        results.message,
+                        results.status
+                    );
+                }
+            }
+        }
+
+        var form_data = new FormData();
+        if(raw_media_files_box.length > 0){
+            form_data.append(`media`, raw_media_files_box[0], raw_media_files_box[0].name);
+        }
+        form_data.append('id', id);
+        form_data.append('passport', passport);
+        form_data.append('full_name', full_name);
+        form_data.append('acct_code', acct_code);
+        form_data.append('bvn', bvn);
+        form_data.append('email', email);
+        form_data.append('state_of_origin', state_of_origin);
+        form_data.append('gender', gender);
+        form_data.append('local_govt', local_govt);
+        form_data.append('date_of_birth', date_of_birth);
+        form_data.append('nationality', nationality);
+        form_data.append('phone_number', phone_number);
+        form_data.append('occupation', occupation);
+        form_data.append('description', description);
+        form_data.append('home_address', home_address);
+        form_data.append('business_address', business_address);
+        xhr.send(form_data);
+
+        // void
+        return false;
+    }
+
+    function fetchAllCustomer() {
+        fetch(`customer/all`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // body: JSON.stringify(query)
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            $("#load-all-clients-account").html("");
+            $.each(results, function(index, val) {
+                localStorage.setItem(`customer_${val.id}`, JSON.stringify(val));
+                $("#load-all-clients-account").append(`
+                    <tr>
+                        <th>#${val.id}</th>
+                        <th>${val.full_name}</th>
+                        <th>${val.phone_number}</th>
+                        <th>${val.acct_code}</th>
+                        <th>&#8358;0.00</th>
+                        <th>&#8358;0.00</th>
+                        <th>
+                            <a href="javascript:void(0);" onclick="viewCustomerDetails(${val.id})" class="btn btn-outline-primary btn-sm">
+                                <i class="fa fa-eye"></i> view
+                            </a>
+                            <a href="javascript:void(0);" onclick="showEditProfileModal(${val.id})" class="btn btn-outline-primary btn-sm">
+                                <i class="fa fa-edit"></i> edit
+                            </a>
+                            <a href="javascript:void(0);" onclick="viewCustomerDetails(${val.id})" class="btn btn-outline-primary btn-sm">
+                                <i class="fa fa-clone"></i> transactions
+                            </a>
+                        </th>
+                    </tr>
+                `);
+            });
+
+            setTimeout(function(){
+                formatTable('all-customer-table');
+            }, 1000 * 3);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    async function viewCustomerDetails(id) {
+        var customer = localStorage.getItem(`customer_${id}`);
+        var val = JSON.parse(customer);
+
+        val.gender = getGender(val.gender);
+        val.occupation = await getOccupation(val.occupation).then(val => val);
+        val.local_govt = await getLga(val.state_of_origin, val.local_govt).then(lga => lga);
+        val.state_of_origin = await getState(val.state_of_origin).then(val => val);
+        val.nationality = getCountry(val.nationality);
+
+        $("#show-customer-details").modal();
+        $("#preview-customer-details").html(`
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            <img src="${val.passport}" width="124px" height="124px;" class="passport-preview">
+                        </th>
+                        <th>
+                            Date Created: ${val.created_at} <br />
+                            Account Code: ${val.acct_code}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Full Name</td>
+                        <td class="text-white">${val.full_name}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td class="text-white">${val.email}</td>
+                    </tr>
+                    <tr>
+                        <td>Date of Birth</td>
+                        <td class="text-white">${val.date_of_birth}</td>
+                    </tr>
+                    <tr>
+                        <td>Gender</td>
+                        <td class="text-white">${val.gender}</td>
+                    </tr>
+                    <tr>
+                        <td>BVN</td>
+                        <td class="text-white">${val.bvn}</td>
+                    </tr>
+                    <tr>
+                        <td>Phone Number</td>
+                        <td class="text-white">${val.phone_number}</td>
+                    </tr>
+                    <tr>
+                        <td>Country</td>
+                        <td class="text-white">${val.nationality}</td>
+                    </tr>
+                    <tr>
+                        <td>State of Origin</td>
+                        <td class="text-white">${val.state_of_origin}</td>
+                    </tr>
+                    <tr>
+                        <td>Local Government Area</td>
+                        <td class="text-white">${val.local_govt}</td>
+                    </tr>
+                    <tr>
+                        <td>Occupation</td>
+                        <td class="text-white">${val.occupation}</td>
+                    </tr>
+                    <tr>
+                        <td>Home Address</td>
+                        <td class="text-white">${val.home_address}</td>
+                    </tr>
+                    <tr>
+                        <td>Bussiness Address</td>
+                        <td class="text-white">${val.business_address}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td class="text-white">${val.description}</td>
+                    </tr>
+
+                    <tr>
+                        <td></td>
+                        <td>
+                            <a href="javascript:void(0);" onclick="flagAccount(${val.id})" class="btn btn-outline-danger">
+                                <i class="fa fa-flag"></i> Flag Account
+                            </a>
+
+                            <a href="javascript:void(0);" onclick="sendMessage(${val.id})" class="btn btn-outline-primary">
+                                <i class="fa fa-envelope"></i> Send Message
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        `);
+    }
+
+    function showEditProfileModal(id) {
+        $("#edit_customer_id").val(id);
+        
+
+        var customer = localStorage.getItem(`customer_${id}`);
+        var val = JSON.parse(customer);
+        // console.log(val)
+        // $("#edit_passport").val();
+        $("#edit_passport_url").val(val.passport);
+        $("#edit-preivew-image").attr('src', val.passport);
+        $("#edit_acct_code").val(val.acct_code);
+        $("#edit_name").val(val.full_name);
+        $("#edit_email").val(val.email);
+        $("#edit_gender").val(val.gender);
+        $("#edit_date_of_birth").val(val.date_of_birth);
+        $("#edit_phone").val(val.phone_number);
+        $("#edit_bvn").val(val.bvn);
+        $("#edit_state_of_origin").val(val.state_of_origin);
+        
+        $("#edit_nationality").val(val.nationality);
+        $("#edit_occupation").val(val.occupation);
+        $("#edit_description").val(val.description);
+        $("#edit_home_address").val(val.home_address);
+        $("#edit_business_address").val(val.business_address);
+
+
+        $("#edit_gender").trigger('change');
+        $("#edit_state_of_origin").trigger('change');
+
+        $("#edit_lga").val(val.local_govt);
+        $("#edit_lga").trigger('change');
+
+        $("#edit_nationality").trigger('change');
+        $("#edit_occupation").trigger('change');
+
+        $("#show-customer-details").modal('hide');
+        $("#show-edit-customer-info").modal();
+    }
+
+    function getGender(id) {
+        switch (id) {
+            case "1":
+                return "Male"
+                break;
+            case "2":
+                return "Female"
+                break;
+            default:
+                return "Other"
+                break;
+        }
+    }
+
+    function getCountry(id) {
+        switch (id) {
+            case "1":
+                return "Nigeria"
+                break;
+            case "2":
+                return "Ghana"
+                break;
+            default:
+                return "Other"
+                break;
+        }
+    }
+
+    function getOccupation(id) {
+        return new Promise((resolve, reject) => {
+            $.each(occupations_collections, function(index, val) {
+                // iterate through array or object 
+                if(val.id == id){
+                    resolve(val.name);
+                }
+            });
+
+            resolve('-');
+        });
+    }
+
+    function getState(id) {
+        return new Promise((resolve, reject) => {
+            $.each(location_collections, function(index, val) {
+                // iterate through array or object 
+                if(val.id == id){
+                    resolve(val.name);
+                }
+            });
+
+            resolve('-');
+        });
+    }
+
+    function getLga(state_id, id) {
+        return new Promise((resolve, reject) => {
+            let lgas;
+            $.each(location_collections, function(index, val) {
+                // iterate through array or object 
+                if(val.id == parseInt(state_id)){
+                    // console.log(val.lga);
+                    lgas = val.lga
+                }
+            });
+
+            $.each(lgas, function(index, val) {
+                /* iterate through array or object */
+                if(index == parseInt(id)){
+                    resolve(val);
+                }
+            });
+        });
+    }
+</script>

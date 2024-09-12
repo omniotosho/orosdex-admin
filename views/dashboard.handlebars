@@ -1,0 +1,281 @@
+<header class="header">
+    <div class="header__main">
+        <div id="before-search"></div>
+
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toggles d-none d-xl-block">
+        <a href="" data-notification="#notifications-messages" class="toggles__notify"><i class="zwicon-mail"></i></a>
+        <a href="" data-notification="#notifications-alerts"><i class="zwicon-bell"></i></a>
+        <a href="" data-notification="#notifications-tasks"><i class="zwicon-task"></i></a>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+
+    <section class="content">
+        <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+        <header class="content__title">
+            <h1>Dashboard<small>Nice to have you back, <b>{{ user.name }}</b></small></h1>
+        </header>
+
+        <!-- Loans and Savings -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card stats">
+                    <div class="card-body">
+                        <h4 class="card-title">LOANS</h4>
+                        <h6 class="card-subtitle">Net balance</h6>
+
+                        <div class="stats__info text-orange" id="loans_balance">&#8358;0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stats">
+                    <div class="card-body">
+                        <h4 class="card-title">Savings</h4>
+                        <h6 class="card-subtitle">Net balance</h6>
+                        <div class="stats__info text-cyan" id="savings_balance">&#8358;0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stats">
+                    <div class="card-body">
+                        <h4 class="card-title">Deposits</h4>
+                        <h6 class="card-subtitle">Net balance</h6>
+
+                        <div class="stats__info text-green" id="deposits_balance">&#8358;0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stats">
+                    <div class="card-body">
+                        <h4 class="card-title">Withdrawals</h4>
+                        <h6 class="card-subtitle">Net balance</h6>
+
+                        <div class="stats__info text-warning" id="withdrawals_balance">&#8358;0.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card stats">
+                    <div class="card-body">
+                        <h4 class="card-title">EQUITIES</h4>
+                        <h6 class="card-subtitle">Net balance</h6>
+
+                        <div class="stats__info text-blue" id="equity_balance">&#8358;0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stats">
+                    <div class="card-body">
+                        <h4 class="card-title">TREASURY BILLS</h4>
+                        <h6 class="card-subtitle">Net balance</h6>
+                        <div class="stats__info text-blue">&#8358;0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stats">
+                    <div class="card-body">
+                        <h4 class="card-title">BONDS</h4>
+                        <h6 class="card-subtitle">Net balance</h6>
+
+                        <div class="stats__info text-blue">&#8358;0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stats">
+                    <div class="card-body">
+                        <h4 class="card-title">ETF</h4>
+                        <h6 class="card-subtitle">Net balance</h6>
+
+                        <div class="stats__info text-blue">&#8358;0.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Transactions</h4>
+                        <h6 class="card-subtitle">All recent transaction summary..</h6>
+
+                        <div class="flot-chart flot-dynamic"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Portfolio Summary</h4>
+                        <h6 class="card-subtitle">Client portfolio summary...</h6>
+
+                        <div class="flot-chart flot-curved-line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Modals -->
+<!-- Vertically centered -->
+<div class="modal fade" id="create-transaction-pin-modal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transaction PIN</h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="set-tp-form" onsubmit="return false" class="row">
+                    <div class="form-group col-md-12">
+                        <label for="t_pin">Enter Pin</label>
+                        <input type="password" id="t_pin" class="form-control input-mask" data-mask="0000" placeholder="****" name="">
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="t_pin_confirm">Confirm Pin</label>
+                        <input type="password" id="t_pin_confirm" class="form-control input-mask" data-mask="0000" placeholder="****" name="">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="setTransactionPin()" id="save-pin" class="btn btn-link">Save changes</button>
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // account balance
+        getAccountBalance();
+        getBasicUserInformation();
+
+        transaction_passcode = localStorage.getItem('passcode')
+        if(!transaction_passcode){
+            // set new password
+            createTransactionPin();
+        }
+    });
+
+    function getAccountBalance() {
+        var user_id = $("#user_id").val();
+        fetch(`${endpoint}/account/balance/${user_id}/1`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            $("#account_balance").html(`
+                &#8358; ${numeral(results.account_balance).format('0,0.00')}
+            `);
+            $("#equity_balance").html(`
+                &#8358; ${numeral(results.equity_balance).format('0,0.00')}
+            `);
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function setTransactionPin() {
+        var passcode = $("#t_pin").val();
+        var confirm_passcode = $("#t_pin_confirm").val();
+        if(passcode == ""){
+            swal.fire(
+                "error",
+                "Kindly enter a passcode!",
+                "error"
+            );
+        }else{
+            if(passcode === confirm_passcode){
+                swal.fire(
+                    "Ok",
+                    "Passcode has been set!"
+                );
+
+                if (typeof(Storage) !== "undefined") {
+                    // Code for localStorage/sessionStorage.
+                    localStorage.setItem("passcode", passcode);
+                } else {
+                    swal.fire(
+                        "error",
+                        "Use supported browser!",
+                        "error"
+                    );
+                }
+                $("#create-transaction-pin-modal").modal('hide');
+            }else{
+                swal.fire(
+                    "error",
+                    "Passcode did not match!",
+                    "error"
+                );
+            }
+        }
+        return false;
+    }
+
+    function getBasicUserInformation() {
+        var user_id = $("#user_id").val();
+        fetch(`profile/basic/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            console.log(results)
+            // document.getElementById('mini_avatar').src = results.avatar;
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function createTransactionPin() {
+        // create transaction pin
+        $("#create-transaction-pin-modal").modal(); 
+    }
+</script>

@@ -1,0 +1,482 @@
+<header class="header">
+    <div class="header__main">
+        <div id="before-search"></div>
+        
+        <form class="search">
+            <input type="text" class="search__input" placeholder="Search for transactions, investments & reports">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset"></i>
+        </form>
+
+        <div class="user dropdown">
+            <a data-toggle="dropdown" class="d-block" href="">
+                <img class="user__img" src="{{ user.avatar }}" id="mini_avatar" onerror="this.src='img/avatar.png'" alt="{{ user.name }}">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Hello {{ user.name }}!</div>
+                <a class="dropdown-item" href="profile"><i class="zmdi zmdi-account"></i> View Profile</a>
+                <a class="dropdown-item" href="privacy"><i class="zmdi zmdi-input-antenna"></i> Privacy Settings</a>
+                <a class="dropdown-item" href="settings"><i class="zmdi zmdi-settings"></i> Settings</a>
+                <a class="dropdown-item" href="logout"><i class="zmdi zmdi-time-restore"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div id="sidebar-links"></div>
+    <input type="hidden" id="user_id" value="{{ user.id }}" name="">
+    <section class="content">
+        <div class="content__inner">
+            <header class="content__title">
+                <h1> {{ user.name }} <small>Saving Officer</small></h1>
+            </header>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <h5 class="card-body__title">Micro Savings</h5>
+                            <form method="POST" id="eq-trade-form" onsubmit="return previewTransaction();" class="row">
+                                <input type="hidden" id="transaction_type" name="transaction_type" />
+
+                                <div class="input-group mb-3 col-md-12">
+                                    <select id="customer-id" class="select2" style="width: 100%;" required="">
+                                        <option value="1"> Mary Williams</option>
+                                    </select>
+                                </div>
+
+                                <div class="input-group mb-3 col-md-12">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            &#8358;
+                                        </span>
+                                    </div>
+                                    <input type="text" onkeyup="formatVolume()" id="equtity-volume" class="form-control input mask" data-mask="00000000000" placeholder="Amount..." required="">
+                                    <!-- <div class="input-group-append">
+                                        <span class="input-group-text">.00</span>
+                                    </div> -->
+                                </div>
+
+                                <div class="input-group mb-3 col-md-12">
+                                    <div class="form-control" id="preview-amount">Amount Preview</div>
+                                </div>                                
+
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="input-group mb-3 col-md-6">
+                                            <button class="btn btn-outline-success col-md-12" onclick="setTransactionType(1)">
+                                                Instant Deposit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="col-md-6">
+                            <!-- <h5 class="card-body__title">Today's loan rate</h5>
+                            <div class="table-responsive data-table">
+                                <table id="data-table" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Range</th>
+                                            <th>Percentage</th>
+                                            <th>Option</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="load-all-loans-rates"></tbody>
+                                </table>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Default -->
+<div class="modal fade" id="preview-loans" tabindex="-1">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <span id="stock-title"></span>
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div id="simulation-preview-div"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var loan_scheduled;
+
+    $(document).ready(function() {
+        loadAllLoanRates();
+        getAllClient();
+    });
+
+    function loadAllLoanRates() {
+        
+    }
+
+    function getAllClient() {
+        
+    }
+
+    function setTransactionType(trans_type) {
+        // body...
+        $("#transaction_type").val(trans_type);
+    }
+
+    function previewTransaction() {
+        var transaction_type = $("#transaction_type").val();
+        var equity_id = $("#equities-options").val();
+        var quantity = $("#equtity-volume").val();
+
+        if(transaction_type == 1){
+            trans_title = `<span class="text-success"> <i class="fa fa-arrow-down"></i> BUY</span>`;
+        }else if(transaction_type == 2){
+            trans_title = `<span class="text-danger"> <i class="fa fa-arrow-up"></i> SELL</span>`;
+        }
+
+        fetch(`${endpoint}/equity/${equity_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            var consideration = parseFloat(quantity) * parseFloat(results.open_price);
+            var brokerage_commission;
+            var cscs_fee;
+            var sec_fee;
+            var nse_fee;
+            var stamp_duties;
+            var net_total;
+
+            $("#simulation-preview-div").html(`
+                <p>Preview
+                    <span class="float-right">
+                        ${trans_title}
+                    </span>
+                </p>
+                <table class="table">
+                    <tbody id="preview-equity-slip">
+                        <tr>
+                            <td>Stock</td>
+                            <td>${results.security}</td>
+                        </tr>
+                        <tr>
+                            <td>Price</td>
+                            <td>&#8358;${results.open_price}</td>
+                        </tr>
+                        <tr>
+                            <td>Quanity</td>
+                            <td>${numeral(quantity).format('0,0')}</td>
+                        </tr>
+                        <tr>
+                            <td>Consideration</td>
+                            <td>&#8358;${numeral(consideration).format('0,0.00')}</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+
+                <div class="">
+                    <button onclick="confirmTransaction()" class="btn btn-outline-info">
+                        Confirm 
+                    </button>
+
+                    <button onclick="cancelTransaction()" class="btn btn-outline-danger float-right">
+                        Cancel
+                    </button>
+                </div>
+            `);
+
+            if(transaction_type == 1){
+                sec_fee = (equity_buy_charges[0].total / 100) * consideration;
+                stamp_duties = (equity_buy_charges[1].total / 100) * consideration;
+                brokerage_commission = (equity_buy_charges[2].total / 100) * consideration;
+                cscs_fee = (equity_buy_charges[3].total / 100) * consideration;
+                
+                // total
+                net_total = (sec_fee + stamp_duties + brokerage_commission + cscs_fee)
+
+                $("#preview-equity-slip").append(`
+                    <tr>
+                        <td>Commission + VAT (${equity_buy_charges[2].rate}% + ${equity_buy_charges[2].vat}%) </td>
+                        <td>&#8358;${numeral(brokerage_commission).format('0,0.0')}</td>
+                    </tr>
+                    <tr>
+                        <td>CSCS + VAT (${equity_buy_charges[3].rate}% + ${equity_buy_charges[3].vat}%)</td>
+                        <td>&#8358;${numeral(cscs_fee).format('0,0.0')}</td>
+                    </tr>
+                    <tr>
+                        <td>SEC FEE (${equity_buy_charges[0].rate}%)</td>
+                        <td>&#8358;${numeral(sec_fee).format('0,0.0')}</td>
+                    </tr>
+                    <tr>
+                        <td>Stamp Duties (${equity_buy_charges[1].rate}%)</td>
+                        <td>&#8358;${numeral(stamp_duties).format('0,0.0')}</td>
+                    </tr>
+                    <tr>
+                        <td>Transaction Type</td>
+                        <td>BUY</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td>&#8358;${numeral(net_total + consideration).format('0,0.0')}</td>
+                    </tr>
+                `);
+            }else if(transaction_type == 2){
+                brokerage_commission = (equity_sell_charges[0].total / 100) * consideration;
+                cscs_fee = (equity_sell_charges[2].total / 100) * consideration;
+                nse_fee = (equity_sell_charges[1].total / 100) * consideration;
+                stamp_duties = (equity_sell_charges[3].total / 100) * consideration;
+                
+                // total
+                net_total = (nse_fee + stamp_duties + brokerage_commission + cscs_fee)
+
+                $("#preview-equity-slip").append(`
+                    <tr>
+                        <td>Commission + VAT (${equity_sell_charges[0].rate}% + ${equity_sell_charges[0].vat}%) </td>
+                        <td>&#8358;${numeral(brokerage_commission).format('0,0.0')}</td>
+                    </tr>
+                    <tr>
+                        <td>CSCS + VAT (${equity_sell_charges[2].rate}% + ${equity_sell_charges[2].vat}%)</td>
+                        <td>&#8358;${numeral(cscs_fee).format('0,0.0')}</td>
+                    </tr>
+                    <tr>
+                        <td>NSE FEE (${equity_sell_charges[1].rate}%)</td>
+                        <td>&#8358;${numeral(nse_fee).format('0,0.0')}</td>
+                    </tr>
+                    <tr>
+                        <td>Stamp Duties (${equity_sell_charges[3].rate}%)</td>
+                        <td>&#8358;${numeral(stamp_duties).format('0,0.0')}</td>
+                    </tr>
+                    <tr>
+                        <td>Transaction Type</td>
+                        <td>SELL</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td>&#8358;${numeral(consideration - net_total).format('0,0.0')}</td>
+                    </tr>
+                `);
+            }
+
+            // assigned values
+            $("#commission").val(brokerage_commission);
+            $("#cscs").val(cscs_fee);
+            $("#sec").val(sec_fee);
+            $("#nse").val(nse_fee);
+            $("#stamp_duties").val(stamp_duties);
+            $("#net_total").val(net_total);
+
+            $("#preview-transaction").modal();
+        }).catch(err => {
+            console.log(err);
+        })
+
+        // void
+        return false;
+    }
+
+    function cancelTransaction() {
+        $("#preview-transaction").modal('hide');
+    }
+
+    function formatTable() {
+        if($("#data-table")[0]) {
+            $("#data-table").DataTable({
+                autoWidth:!1, responsive:!0, lengthMenu:[[5, 10, 25, -1], ["5 Rows", "10 Rows", "25 Rows", "Everything"]], language: {
+                    searchPlaceholder: "Search for records..."
+                }
+                , sDom:'<"dataTables__top"flB<"dataTables_actions">>rt<"dataTables__bottom"ip><"clear">', buttons:[ {
+                    extend: "excelHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "csvHtml5", title: "Export Data"
+                }
+                , {
+                    extend: "print", title: "Material Admin"
+                }
+                ], initComplete:function() {
+                    $(".dataTables_actions").html('<i class="zwicon-more-h" data-toggle="dropdown" /><div class="dropdown-menu dropdown-menu-right"><a href="" data-table-action="print" class="dropdown-item">Print</a><a href="" data-table-action="fullscreen" class="dropdown-item">Fullscreen</a><div class="dropdown-divider" /><div class="dropdown-header border-bottom-0 pb-0">Download as:</div><a href="" data-table-action="excel" class="dropdown-item">Excel (.xlsx)</a><a href="" data-table-action="csv" class="dropdown-item">CSV (.csv)</a></div>')
+                }
+            }
+            ), $("body").on("click", "[data-table-action]", function(e) {
+                e.preventDefault();
+                var t=$(this).data("table-action");
+                if("excel"===t&&$("#data-table_wrapper").find(".buttons-excel").click(), "csv"===t&&$("#data-table_wrapper").find(".buttons-csv").click(), "print"===t&&$("#data-table_wrapper").find(".buttons-print").click(), "fullscreen"===t) {
+                    var a=$(this).closest(".card");
+                    a.hasClass("card--fullscreen")?(a.removeClass("card--fullscreen"), $body.removeClass("data-table-toggled")): (a.addClass("card--fullscreen"), $body.addClass("data-table-toggled"))
+                }
+            })
+        }
+    }
+
+    function formatVolume() {
+        var amount  = $("#equtity-volume").val();
+        var filtered = parseFloat(amount);
+        $("#preview-amount").html(`Quanity: ${numeral(filtered).format('0,0')}`);
+    }
+
+    function confirmTransaction() {
+        var commission          = $("#commission").val();
+        var cscs                = $("#cscs").val();
+        var sec                 = $("#sec").val();
+        var nse                 = $("#nse").val();
+        var stamp_duties        = $("#stamp_duties").val();
+        var commission_gl_id    = $("#commission_gl_id").val();
+        var cscs_gl_id          = $("#cscs_gl_id").val();
+        var sec_gl_id           = $("#sec_gl_id").val();
+        var nse_gl_id           = $("#nse_gl_id").val();
+        var stamp_duties_gl_id  = $("#stamp_duties_gl_id").val();
+        var user_id             = $("#user_id").val();
+        var transaction_type    = $("#transaction_type").val();
+        var equity_id           = $("#equities-options").val();
+        var units               = $("#equtity-volume").val();
+
+        var query = {commission, cscs, sec, 
+            nse, stamp_duties, commission_gl_id, 
+            cscs_gl_id, sec_gl_id, nse_gl_id,
+            stamp_duties_gl_id, user_id, transaction_type, equity_id, units
+        }
+
+        fetch(`${endpoint}/transaction/equity`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(query)
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            swal.fire(
+                results.status,
+                results.message,
+                results.status,
+            );
+            if(results.status == "success"){
+                $("#eq-trade-form")[0].reset();
+                getAccountBalance();
+                $("#preview-transaction").modal('hide');
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+
+        // return void
+        return false;
+    }
+
+    function getUserTransaction() {
+        var user_id = $("#user_id").val();
+
+        fetch(`${endpoint}/transaction/${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results)
+            $("#load-all-deposit-history").html("");
+            var sn = 0;
+            $.each(results, function(index, val) {
+                // console.log(val);
+                sn++;
+                $("#load-all-deposit-history").append(`
+                    <tr>
+                        <td>${sn}</td>
+                        <td>&#8358;${numeral(val.amount).format('0,0.00')}</td>
+                        <td>#${val.reference}</td>
+                        <td>${moment(val.created_at).format('LL')}</td>
+                        <td><i class="fa fa-arrow-down text-success"></i> Deposit</td>
+                    <tr>
+                `);
+            });
+
+            // format table
+            // formatTable();
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function getEquities() {
+        fetch(`${endpoint}/equity`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            // console.log(results);
+            $("#load-all-equities-history").html("");
+            $("#equities-options").html("")
+            $.each(results, function(index, val) {
+                $("#load-all-equities-history").append(`
+                    <tr>
+                        <td>${val.security}</td>
+                        <td>&#8358;${val.open_price}</td>
+                        <td>&#8358;${val.previous_closing_price}</td>
+                        <td>${moment(val.updated_at).format('LL')}</td>
+                    </tr>
+                `);
+
+                $("#equities-options").append(`
+                    <option value="${val.id}">${val.security} - &#8358;${val.open_price}</option>
+                `);
+            });
+
+            setTimeout((t) => {
+                formatTable();
+                $("#equities-options").select2();
+
+            }, 1000 * 1);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    function getSingleEquity() {
+        
+    }
+
+    function loadAllEquityCharges() {
+        fetch(`${endpoint}/equity_charges`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(r => {
+            return r.json();
+        }).then(results => {
+            console.log(results);
+            $.each(results, function(index, val) {
+                if(val.trade_type == 1){ // buy charge
+                    equity_buy_charges.push(val);
+                }else if(val.trade_type == 2){ // sell charge
+                    equity_sell_charges.push(val);
+                }
+            });
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+</script>
