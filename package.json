@@ -4,6 +4,7 @@
   "description": "Tridex for trading investment & management system",
   "main": "nodemon bin/www",
   "scripts": {
+    "start": "node bin/www",
     "dev": "nodemon bin/www",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
